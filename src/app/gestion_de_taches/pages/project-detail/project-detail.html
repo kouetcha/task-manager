@@ -1,0 +1,260 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6" *ngIf="!loading; else loadingTemplate">
+  <!-- Bouton retour -->
+  <button (click)="goBack()" class="mb-4 flex items-center text-indigo-600 dark:text-indigo-400 hover:underline">
+    <mat-icon>arrow_back</mat-icon>
+    <span class="ml-1">Retour aux projets</span>
+  </button>
+
+  <!-- Carte projet -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6" *ngIf="projet">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ projet.designation }}</h2>
+      <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + getStatusColor(projet.status)">
+        {{ getStatusLabel(projet.status) }}
+      </span>
+    </div>
+
+    <p *ngIf="projet.description" class="text-gray-600 dark:text-gray-300 mb-4">{{ projet.description }}</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <div><span class="font-medium">Début :</span> {{ projet?.dateDebut | date:'dd/MM/yyyy' }}</div>
+      <div><span class="font-medium">Fin :</span> {{ projet?.dateFin | date:'dd/MM/yyyy' }}</div>
+      <div><span class="font-medium">Créateur :</span> {{ projet?.createur?.prenom }} {{ projet.createur?.nom }} ({{ projet.createur?.email }})</div>
+    </div>
+
+    <!-- Emails du projet -->
+<div *ngIf="projet.emails?.length" class="mb-4 space-y-2">
+  <app-email-list
+    [emails]="projet.emails||[]"
+    [emailType]="'EMAIL_PROJET'"
+    [entiteId]="projet.id"
+    (emailAdded)="onEmailAdded($event, projet)"
+    (emailUpdated)="onEmailUpdated($event, projet)"
+    (emailDeleted)="onEmailDeleted($event, projet)"
+  ></app-email-list>
+</div>
+
+    <!-- Fichiers du projet -->
+    <div *ngIf="projet.fichiers?.length">
+      <app-file-list
+        [files]="projet.fichiers!"
+        (viewFile)="onViewFile($event, 'projet', projet.id)"
+        (deleteFile)="onDeleteFile($event, 'projet', projet.id)">
+      </app-file-list>
+    </div>
+  </div>
+
+  <!-- Section Activités -->
+  <div class="mt-8">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Activités</h3>
+      <button (click)="onCreateActivite()" class="inline-flex items-center px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+        <mat-icon class="mr-1 text-sm">add</mat-icon>
+        Nouvelle activité
+      </button>
+    </div>
+
+    <!-- Formulaire d'activité -->
+    <div *ngIf="showActiviteForm" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+      <h4 class="text-lg font-medium mb-3 text-gray-900 dark:text-white">{{ editingActivite ? 'Modifier' : 'Créer' }} une activité</h4>
+      <div class="grid grid-cols-1 gap-4">
+        <input [(ngModel)]="activiteForm.designation" placeholder="Titre" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+        <textarea [(ngModel)]="activiteForm.description" placeholder="Description" rows="2" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="date" [(ngModel)]="activiteForm.dateDebut" class="p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <input type="date" [(ngModel)]="activiteForm.dateFin" class="p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+        </div>
+        <select [(ngModel)]="activiteForm.status" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="EN_COURS">En cours</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+
+        <!-- Emails (version simple : séparés par des virgules) -->
+        <input [(ngModel)]="activiteForm.emailsString" placeholder="Emails (séparés par des virgules)" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+
+        <!-- Fichiers -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fichiers</label>
+          <input type="file" #fileInputActivite (change)="onFilesSelected($event, 'activite')" multiple class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <div *ngIf="selectedFilesActivite.length > 0" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            {{ selectedFilesActivite.length }} fichier(s) sélectionné(s)
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-2">
+          <button (click)="cancelActiviteForm()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+            Annuler
+          </button>
+          <button (click)="onSaveActivite()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des activités -->
+    <div *ngIf="activites.length === 0" class="text-center py-8 bg-white dark:bg-gray-800 rounded-lg">
+      <mat-icon class="text-4xl text-gray-400">assignment</mat-icon>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">Aucune activité pour ce projet</p>
+    </div>
+
+    <div *ngFor="let activite of activites" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4">
+      <!-- En-tête activité -->
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{ activite.designation }}</h4>
+        <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(activite.status)">
+          {{ getStatusLabel(activite.status) }}
+        </span>
+      </div>
+      <p *ngIf="activite.description" class="text-sm text-gray-600 dark:text-gray-300 mb-2">{{ activite.description }}</p>
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+        <span>{{ activite.dateDebut | date:'dd/MM/yyyy' }} - {{ activite.dateFin | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <!-- Emails de l'activité -->
+<div *ngIf="activite.emails?.length" class="mb-2">
+     
+  <app-email-list
+    [emails]="activite.emails||[]"
+    [emailType]="'EMAIL_ACTIVITE'"
+    [entiteId]="activite.id"
+    (emailAdded)="onEmailAddedToActivite($event, activite)"
+    (emailUpdated)="onEmailUpdatedInActivite($event, activite)"
+    (emailDeleted)="onEmailDeletedFromActivite($event, activite)"
+  ></app-email-list>
+
+      </div>
+
+      <!-- Fichiers de l'activité -->
+      <div *ngIf="activite.fichiers?.length" class="mb-3">
+        <app-file-list
+          [files]="activite.fichiers!"
+          (viewFile)="onViewFile($event, 'activite', activite.id)"
+          (deleteFile)="onDeleteFile($event, 'activite', activite.id)">
+        </app-file-list>
+      </div>
+
+      <!-- Boutons actions activité -->
+      <div class="flex space-x-2 mb-3">
+        <button (click)="onEditActivite(activite)" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm flex items-center">
+          <mat-icon class="text-sm">edit</mat-icon> Modifier
+        </button>
+        <button (click)="onDeleteActivite(activite)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm flex items-center">
+          <mat-icon class="text-sm">delete</mat-icon> Supprimer
+        </button>
+        <button (click)="onAddTache(activite.id)" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 text-sm flex items-center">
+          <mat-icon class="text-sm">add_task</mat-icon> Ajouter une tâche
+        </button>
+      </div>
+
+      <!-- Tâches associées -->
+      <div *ngIf="activite.taches && activite.taches.length > 0" class="ml-4 mt-2 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tâches</h5>
+        <div *ngFor="let tache of activite.taches" class="mb-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-gray-900 dark:text-white">{{ tache.designation }}</span>
+            <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(tache.status)">
+              {{ getStatusLabel(tache.status) }}
+            </span>
+          </div>
+          <p *ngIf="tache.description" class="text-xs text-gray-600 dark:text-gray-300 mt-1">{{ tache.description }}</p>
+          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {{ tache.dateDebut | date:'dd/MM/yyyy' }} - {{ tache.dateFin | date:'dd/MM/yyyy' }}
+          </div>
+
+          <!-- Emails de la tâche -->
+          <div *ngIf="tache.emails?.length" class="mt-1">
+           <app-email-list
+                [emails]="tache.emails||[]"
+                [emailType]="'EMAIL_TACHE'"
+                [entiteId]="activite.id"
+                (emailAdded)="onEmailAddedToTache($event, tache)"
+                (emailUpdated)="onEmailUpdatedInTache($event, tache)"
+                (emailDeleted)="onEmailDeletedFromTache($event, tache)"
+                >
+            </app-email-list>
+          </div>
+
+          <!-- Fichiers de la tâche -->
+          <div *ngIf="tache.fichiers?.length" class="mt-1">
+            <app-file-list
+              [files]="tache.fichiers!"
+              (viewFile)="onViewFile($event, 'tache', tache.id)"
+              (deleteFile)="onDeleteFile($event, 'tache', tache.id)">
+            </app-file-list>
+          </div>
+
+          <div class="flex space-x-2 mt-1">
+            <button (click)="onEditTache(tache)" class="text-indigo-600 dark:text-indigo-400 text-xs hover:underline">Modifier</button>
+            <button (click)="onDeleteTache(tache)" class="text-red-600 dark:text-red-400 text-xs hover:underline">Supprimer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire d'ajout de tâche pour cette activité -->
+      <div *ngIf="showTacheFormForActiviteId === activite.id" class="mt-3 p-3 bg-gray-100 dark:bg-gray-700 rounded">
+        <h6 class="text-sm font-medium mb-2 text-gray-900 dark:text-white">{{ editingTache ? 'Modifier' : 'Nouvelle' }} tâche</h6>
+        <div class="space-y-2">
+          <input [(ngModel)]="tacheForm.designation" placeholder="Titre" class="w-full p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+          <textarea [(ngModel)]="tacheForm.description" placeholder="Description" rows="1" class="w-full p-2 text-sm border rounded dark:bg-gray-600 dark:text-white"></textarea>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="date" [(ngModel)]="tacheForm.dateDebut" class="p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+            <input type="date" [(ngModel)]="tacheForm.dateFin" class="p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+          </div>
+          <select [(ngModel)]="tacheForm.status" class="w-full p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
+
+          <!-- Emails (version simple) -->
+          <input [(ngModel)]="tacheForm.emailsString" placeholder="Emails (séparés par des virgules)" class="w-full p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+
+          <!-- Fichiers -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fichiers</label>
+            <input type="file" #fileInputTache (change)="onFilesSelected($event, 'tache')" multiple class="w-full p-2 text-sm border rounded dark:bg-gray-600 dark:text-white">
+            <div *ngIf="selectedFilesTache.length > 0" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              {{ selectedFilesTache.length }} fichier(s) sélectionné(s)
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-2">
+            <button (click)="cancelTacheForm()" class="px-3 py-1 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
+              Annuler
+            </button>
+            <button (click)="onSaveTache()" class="px-3 py-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded">
+              Enregistrer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals de visualisation -->
+<app-pdf-modal
+  [isOpen]="isPdfModalOpen"
+  [pdfUrl]="pdfPreviewUrl"
+  [fileName]="fileName"
+  (closed)="onPdfModalClosed()">
+</app-pdf-modal>
+
+<!-- Modal ONLYOFFICE (à placer après les autres modals) -->
+<app-onlyoffice-viewer
+  *ngIf="isOnlyOfficeModalOpen"
+  [fileInfo]="fichierInfo!"
+  [mode]="'view'"
+  (closed)="onOnlyOfficeModalClosed()"
+  (error)="onViewerError($event)">
+</app-onlyoffice-viewer>
+
+<ng-template #loadingTemplate>
+  <div class="flex justify-center py-12">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+</ng-template>

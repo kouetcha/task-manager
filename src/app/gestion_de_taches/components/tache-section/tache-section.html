@@ -1,0 +1,140 @@
+<div class="mt-10">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Taches</h3>
+    <button 
+      (click)="onCreateTache()" 
+      class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Nouvelle tache
+    </button>
+  </div>
+
+  <!-- Carrousel horizontal des taches -->
+  @if (taches.length > 0) {
+    <div class="relative">
+      <!-- Flèche gauche -->
+      <button 
+        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full shadow-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+        (click)="scrollCarousel(-1)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <!-- Liste défilante -->
+      <div #carousel class="flex overflow-x-auto gap-4 pb-2 scroll-smooth snap-x" style="scrollbar-width: thin;">
+        @for (tache of taches; track tache.id) {
+          <div 
+            class="flex-none w-64 snap-start cursor-pointer p-4 rounded-lg border transition-all"
+            [class.bg-indigo-50]="selectedTache?.id === tache.id"
+            [class.border-indigo-300]="selectedTache?.id === tache.id"
+            [class.bg-white]="selectedTache?.id !== tache.id"
+            [class.border-gray-200]="selectedTache?.id !== tache.id"
+            [class.dark:bg-gray-800]="selectedTache?.id !== tache.id"
+            (click)="selectTache(tache)"
+          >
+            <div class="flex justify-between items-start">
+              <h4 class="font-medium text-gray-900 dark:text-white truncate">{{ tache.designation }}</h4>
+              <span [class]="'px-2 py-1 rounded-full text-xs font-medium ' + getStatusColor(tache.status)">
+                {{ getStatusLabel(tache.status) }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">{{ tache.description }}</p>
+            <div class="flex justify-end mt-3 space-x-2">
+              <button (click)="onEditTache(tache); $event.stopPropagation()" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </button>
+              <button (click)="onDeleteTache(tache); $event.stopPropagation()" class="text-red-600 hover:text-red-800 dark:text-red-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Flèche droite -->
+      <button 
+        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full shadow-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+        (click)="scrollCarousel(1)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  } @else {
+    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+      Aucune tache pour cette activité. Cliquez sur "Nouvelle tache" pour en créer une.
+    </div>
+  }
+
+  <!-- Détail de l'tache sélectionnée -->
+@if (selectedTache) {
+  <div class="mt-6">
+    <app-tache-detail 
+      [tache]="selectedTache"
+      (editableChamps)="onApplieELementChange($event)"
+      (viewFile)="viewFile.emit($event)"
+      (ajoutFichiers)="onAddFiles($event, selectedTache)"
+      [currentUserId]="currentUserId"
+      [currentUserProfilePicture]="currentUserProfilePicture"
+      (deleteFile)="onDeleteFile($event)">
+    </app-tache-detail>
+  </div>
+}
+
+  <!-- Formulaire de création/édition d'tache -->
+
+@if (showTacheForm) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center mb-4">
+        <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+          {{ editingTache ? 'Modifier' : 'Créer' }} une tache
+        </h4>
+        <button (click)="cancelTacheForm()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Champs du formulaire (inchangés) -->
+        <input [(ngModel)]="tacheForm.designation" placeholder="Titre" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+        <textarea [(ngModel)]="tacheForm.description" placeholder="Description" rows="2" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white"></textarea>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="date" [(ngModel)]="tacheForm.dateDebut" class="p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <input type="date" [(ngModel)]="tacheForm.dateFin" class="p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+        </div>
+        <select [(ngModel)]="tacheForm.status" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="EN_COURS">En cours</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+        <input [(ngModel)]="tacheForm.emailsString" placeholder="Emails (séparés par des virgules)" class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fichiers</label>
+          <input type="file" #fileInputTache (change)="onFilesSelected($event)" multiple class="w-full p-2 border rounded-lg dark:bg-gray-700 dark:text-white">
+          <div *ngIf="selectedFilesTache.length > 0" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            {{ selectedFilesTache.length }} fichier(s) sélectionné(s)
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button (click)="cancelTacheForm()" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+            Annuler
+          </button>
+          <button (click)="onSaveTache()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+</div>

@@ -1,0 +1,163 @@
+<div class="h-full flex flex-col overflow-y-auto p-6">
+  <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+    {{ isEditMode ? 'Modifier le tache' : 'Nouveau tache' }}
+  </h2>
+
+  <form [formGroup]="tacheForm" (ngSubmit)="onSubmit()" class="flex flex-col flex-1 overflow-hidden">
+    <!-- Zone défilante : tous les champs sauf les boutons -->
+    <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+      <!-- Titre -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Titre du tache *
+        </label>
+        <input
+          type="text"
+          formControlName="designation"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+          [class.border-red-500]="tacheForm.get('designation')?.invalid && tacheForm.get('designation')?.touched"
+        />
+        <div *ngIf="tacheForm.get('designation')?.invalid && tacheForm.get('designation')?.touched" 
+             class="mt-1 text-xs text-red-600">
+          Le titre est requis (minimum 3 caractères)
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Description
+        </label>
+        <textarea
+          formControlName="description"
+          rows="3"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+        ></textarea>
+      </div>
+
+      <!-- Emails -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Emails
+        </label>
+        <input
+          type="text"
+          formControlName="emails"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+        />
+      </div>
+
+      <!-- Dates -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Date de début *
+          </label>
+          <input
+            type="date"
+            formControlName="dateDebut"
+            [min]="getDateMin()"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Date de fin *
+          </label>
+          <input
+            type="date"
+            formControlName="dateFin"
+            [min]="tacheForm.get('dateDebut')?.value | date:'yyyy-MM-dd'"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+      </div>
+
+      <!-- Statut (uniquement en mode édition) -->
+      <div *ngIf="isEditMode">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Statut
+        </label>
+        <select
+          formControlName="status"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+        >
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="EN_COURS">En cours</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+      </div>
+
+      <!-- Upload fichiers (uniquement en création) -->
+      <div *ngIf="!isEditMode">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Fichiers joints
+        </label>
+        <div
+          class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center"
+          (dragover)="$event.preventDefault()"
+          (drop)="$event.preventDefault()"
+        >
+          <input
+            type="file"
+            #fileInput
+            multiple
+            (change)="onFileSelected($event)"
+            class="hidden"
+          />
+          <button
+            type="button"
+            (click)="fileInput.click()"
+            class="text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Choisir des fichiers
+          </button>
+          <span class="text-gray-500 dark:text-gray-400"> ou glisser-déposer</span>
+        </div>
+
+        <!-- Liste des fichiers sélectionnés -->
+        <div *ngIf="fichiers.length > 0" class="mt-2 space-y-1">
+          <div *ngFor="let file of fichiers; let i = index" 
+               class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
+            <span class="text-sm truncate">{{ file.name }}</span>
+            <button type="button" (click)="removeFichier(i)" class="text-red-600 hover:text-red-800">
+              <mat-icon class="text-sm">close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fichiers existants (mode édition) -->
+        <div *ngIf="isEditMode && fichiersExistants.length > 0" class="mt-2 space-y-1">
+          <p class="text-xs font-medium text-gray-500">Fichiers actuels:</p>
+          <div *ngFor="let fichier of fichiersExistants; let i = index" 
+               class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
+            <span class="text-sm truncate">{{ fichier.nomFichier }}</span>
+            <button type="button" (click)="removeFichierExistant(i)" class="text-red-600 hover:text-red-800">
+              <mat-icon class="text-sm">delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action (toujours visibles) -->
+    <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        [disabled]="tacheForm.invalid || loading"
+        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
+        <mat-spinner *ngIf="loading" diameter="20" class="inline"></mat-spinner>
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,55 @@
+<div *ngIf="isOpen" class="pdf-modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="pdf-modal-container" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="pdf-modal-header">
+      <h3>{{ fileName }}</h3>
+      <button class="modal-close-btn" (click)="close(); $event.stopPropagation()">×</button>
+    </div>
+    
+    <!-- Content -->
+    <div class="pdf-modal-content">
+      <iframe 
+         
+        *ngIf="pdfUrl"
+        [src]="getSafeUrl(pdfUrl.toString())"
+        #pdfIframe
+        class="pdf-viewer"
+        title="PDF Viewer"
+            
+        (click)="$event.stopPropagation()"> 
+        >
+      
+      </iframe>
+      
+      <div *ngIf="!pdfUrl && !isLoading" class="pdf-error">
+        <span class="error-icon">❌</span>
+        <p>Unable to load PDF</p>
+        <button class="btn-retry" (click)="retryLoad()">Retry</button>
+      </div>
+      
+      <div *ngIf="isLoading" class="pdf-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading PDF...</p>
+        <p class="loading-subtext">Please wait</p>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="pdf-modal-footer">
+      <button class="btn-secondary" (click)="close(); $event.stopPropagation()">
+        Close
+      </button>
+      <a *ngIf="pdfUrl" 
+         [href]="pdfUrl"
+         [download]="fileName"
+         class="btn-primary"
+         (click)="$event.stopPropagation()">
+        <span>⬇️</span> Download
+      </a>
+      <button *ngIf="pdfUrl" class="btn-tertiary" (click)="openInNewTab(); $event.stopPropagation()">
+        <span>↗️</span> Open in New Tab
+      </button>
+    </div>
+  </div>
+</div>

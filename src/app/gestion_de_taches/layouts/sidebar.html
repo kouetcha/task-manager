@@ -1,0 +1,106 @@
+<!-- Overlay pour mobile lorsque la sidebar est ouverte -->
+@if (sidebarService.isOpen() && !sidebarService.isDesktop()) {
+  <div
+    class="fixed inset-0 z-40 bg-black/50 transition-opacity lg:hidden"
+    (click)="sidebarService.close()"
+  ></div>
+}
+
+<!-- Sidebar -->
+<aside
+  class="fixed inset-y-0 left-0 z-50 w-64 transform bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out"
+  [class.-translate-x-full]="!sidebarService.isOpen()"
+  [class.lg:static]="sidebarService.isOpen()"
+  [class.lg:translate-x-0]="sidebarService.isOpen()"
+>
+  <div class="flex h-full flex-col overflow-y-auto">
+    <!-- Logo -->
+    <div class="flex h-16 items-center justify-center border-b border-gray-200 dark:border-gray-700">
+      <a routerLink="/app/dashboard" class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        TaskFlow
+      </a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 space-y-1 px-4 py-6">
+      <a
+        routerLink="/app/dashboard"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">dashboard</mat-icon>
+        Tableau de bord
+      </a>
+      <a
+        routerLink="/app/projects"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">folder</mat-icon>
+        Projets
+      </a>
+      <a
+        routerLink="/app/tasks"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">task</mat-icon>
+        Tâches
+      </a>
+      <a
+        routerLink="/app/team"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">group</mat-icon>
+        Équipe
+      </a>
+      <a
+        routerLink="/app/calendar"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">calendar_today</mat-icon>
+        Calendrier
+      </a>
+      <a
+        routerLink="/app/settings"
+        routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        (click)="onLinkClick()"
+      >
+        <mat-icon class="mr-3">settings</mat-icon>
+        Paramètres
+      </a>
+    </nav>
+
+    <!-- Profil utilisateur en bas -->
+<!-- Profil utilisateur en bas -->
+<div class="border-t border-gray-200 dark:border-gray-700 p-4">
+  <div class="flex items-center space-x-3">
+    <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+      @if (user) {
+        <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+          {{ user.prenom?.[0] }}{{ user.nom?.[0] }}
+        </span>
+      } @else {
+        <mat-icon class="text-indigo-600 dark:text-indigo-400 text-sm">person</mat-icon>
+      }
+    </div>
+    <div class="flex-1 truncate">
+      <p class="text-sm font-medium text-gray-900 dark:text-white">
+        {{ user ? (user.prenom + ' ' + user.nom) : 'Chargement...' }}
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ user?.email || '' }}
+      </p>
+    </div>
+  </div>
+</div>
+  </div>
+</aside>

@@ -1,0 +1,31 @@
+ <div class="flex items-center group w-full">
+      <!-- Mode visualisation -->
+      <div *ngIf="!editing; else editMode" class="flex-1">
+        <span *ngIf="value; else placeholder">{{ value | date:'dd/MM/yyyy' }}</span>
+        <ng-template #placeholder>
+          <span class="text-gray-400 italic">—</span>
+        </ng-template>
+      </div>
+
+      <!-- Mode édition -->
+      <ng-template #editMode>
+        <div class="flex-1 flex items-center gap-2">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="editedValue" [min]="min" [max]="max" class="p-1 border rounded">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <button (click)="save()" mat-icon-button color="primary"><mat-icon>check</mat-icon></button>
+          <button (click)="cancel()" mat-icon-button><mat-icon>close</mat-icon></button>
+        </div>
+      </ng-template>
+
+      <!-- Bouton à trois points -->
+      <button [matMenuTriggerFor]="menu" mat-icon-button class="opacity-0 group-hover:opacity-100 transition-opacity">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="startEdit()">
+          <mat-icon>edit</mat-icon>
+          <span>Modifier</span>
+        </button>
+      </mat-menu>
+    </div>

@@ -1,0 +1,34 @@
+<div class="onlyoffice-viewer-container" [class.fullscreen]="true">
+  <!-- État de chargement -->
+
+  <!-- État d'erreur -->
+  <div *ngIf="hasError && !isLoading" class="error-overlay">
+    <mat-icon class="error-large">error_outline</mat-icon>
+    <h3>Impossible de charger l'éditeur</h3>
+    <p class="error-message">{{ errorMessage }}</p>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Réessayer
+      </button>
+      <button mat-raised-button (click)="close()">
+        <mat-icon>close</mat-icon>
+        Fermer
+      </button>
+      <button mat-button (click)="debugInfo()">
+        <mat-icon>bug_report</mat-icon>
+        Déboguer
+      </button>
+    </div>
+  </div>
+
+  <!-- Conteneur pour l'éditeur ONLYOFFICE -->
+  <div #editorContainer class="onlyoffice-editor"></div>
+  <!-- Bouton Fermer toujours visible -->
+<div class="editor-actions">
+  <button mat-raised-button color="warn" (click)="close()">
+    <mat-icon>close</mat-icon>
+    Fermer
+  </button>
+</div>
+</div>
