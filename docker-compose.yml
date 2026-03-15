@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+
+  # ===============================
+  # BASE DE DONNÉES
+  # ===============================
+  mysql:
+    image: mysql:8.0
+    container_name: tasksmanager-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: tasksmanager_global
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - tasksmanager-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===============================
+  # CACHE
+  # ===============================
+  redis:
+    image: redis:7.2-alpine
+    container_name: tasksmanager-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tasksmanager-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===============================
+  # BACKEND
+  # ===============================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tasksmanager-backend
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - SERVER_PORT=9000
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/tasksmanager_global?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - KOUETCHA_APP_JWTSECRET=${JWT_SECRET}
+      - KOUETCHA_APP_JWTEXPIRATIONMS=86400000
+      - CLIENT_URL=http://localhost:4200
+      - ALLOWED_ORIGIN=http://localhost:4200
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tasksmanager-network
+
+  # ===============================
+  # FRONTEND
+  # ===============================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tasksmanager-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - tasksmanager-network
+
+# ===============================
+# VOLUMES
+# ===============================
+volumes:
+  mysql_data:
+  redis_data:
+  media_data:
+
+# ===============================
+# NETWORK
+# ===============================
+networks:
+  tasksmanager-network:
+    driver: bridge

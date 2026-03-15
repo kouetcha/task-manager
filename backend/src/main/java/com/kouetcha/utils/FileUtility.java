@@ -23,8 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -352,11 +351,6 @@ public class FileUtility {
             Resource resource = new UrlResource(filePath.toUri());
 
             String fileName = filePath.getFileName().toString();
-
-            // 🔹 Nettoyage ASCII pour compatibilité ancienne (évite l’erreur Tomcat)
-            String asciiFileName = Normalizer.normalize(fileName, Normalizer.Form.NFD)
-                    .replaceAll("[^\\p{ASCII}]", "")
-                    .replaceAll("[\\r\\n\"]", ""); // sécurité header injection
 
             // 🔹 ContentDisposition RFC 5987 (UTF-8 propre)
             ContentDisposition contentDisposition = ContentDisposition

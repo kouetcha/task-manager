@@ -16,7 +16,7 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 - 📁 Hiérarchie Projet → Activité → Tâche
 - 👥 Invitations par email à chaque niveau de la hiérarchie
 - 💬 Commentaires avec pièces jointes sur chaque entité
-- 📎 Upload de fichiers (projets, activités, tâches, profils)
+- 📎 Upload et visualisation de fichiers (OnlyOffice)
 - 📅 Vue calendrier et vue détail
 - 🔔 Notifications temps réel via WebSocket
 - ⚡ Cache Redis pour les performances
@@ -34,6 +34,7 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 | Cache           | Redis                                            |
 | Temps réel      | WebSocket (STOMP)                                |
 | Auth            | JWT (Access + Refresh token)                     |
+| Visualisation   | OnlyOffice Document Server                       |
 | Stockage        | Système de fichiers local (configurable)         |
 
 ---
@@ -42,8 +43,10 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 
 ```
 task-manager/
-├── backend/      # API REST Spring Boot
-├── frontend/     # SPA Angular
+├── backend/          # API REST Spring Boot
+├── frontend/         # SPA Angular
+├── docker-compose.yml
+├── .env.example
 └── README.md
 ```
 
@@ -51,12 +54,12 @@ task-manager/
 
 ## Modèle de permissions
 
-| Rôle              | Peut voir                              | Peut faire                        |
-|-------------------|----------------------------------------|-----------------------------------|
-| Créateur          | Son entité complète                    | Modifier, supprimer               |
+| Rôle              | Peut voir                               | Peut faire                        |
+|-------------------|-----------------------------------------|-----------------------------------|
+| Créateur          | Son entité complète                     | Modifier, supprimer               |
 | Membre projet     | Le projet + activités où il est associé | Créer des activités               |
-| Membre activité   | L'activité + tâches où il est associé  | Créer des tâches                  |
-| Membre tâche      | La tâche uniquement                    | Commenter                         |
+| Membre activité   | L'activité + tâches où il est associé   | Créer des tâches                  |
+| Membre tâche      | La tâche uniquement                     | Commenter                         |
 
 > ⚠️ **L'accès est toujours explicite — aucune visibilité n'est héritée du parent.**
 > Un membre associé à une tâche ne voit ni l'activité ni le projet parent.
@@ -67,77 +70,58 @@ task-manager/
 
 ### Prérequis
 
-- Java 17+
-- Node.js 18+
-- MySQL 8
-- Redis
+- Docker et Docker Compose
+- Un compte OnlyOffice gratuit — voir section ci-dessous
 
 ---
 
-### Backend
+### 1. Cloner le projet
 
 ```bash
-cd backend
+git clone https://github.com/kouetcha/task-manager.git
+cd task-manager
 ```
 
-Créer le fichier de configuration :
+### 2. Configurer les variables d'environnement
 
 ```bash
-cp src/main/resources/application.properties.example src/main/resources/application.properties
+cp .env.example .env
 ```
 
-Renseigner les variables dans `application.properties` :
+Éditer le fichier `.env` :
 
-```properties
-# Serveur
-server.port=9000
-server.servlet.context-path=/tasksmanager
-
-# Base de données
-spring.datasource.url=jdbc:mysql://localhost:3306/tasksmanager_global?createDatabaseIfNotExist=true
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-
-# JWT
-kouetcha.app.jwtSecret=yourSuperSecretKey
-kouetcha.app.jwtExpirationMs=86400000
-
-# Redis
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
-
-# Frontend (CORS)
-client.url=http://localhost:4200
-allowed_origin=http://localhost:4200
-
-# Compte admin par défaut
-admin.email=admin@example.com
-admin.password=adminPassword
+```env
+MYSQL_PASSWORD=yourpassword
+JWT_SECRET=yourSuperSecretKeyMinimum32Characters
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=adminPassword
 ```
 
-Lancer le backend :
+### 3. Configurer OnlyOffice
+
+La visualisation de documents nécessite une instance OnlyOffice Document Server.
+
+1. Créer un compte gratuit sur [personal.onlyoffice.com](https://personal.onlyoffice.com)
+2. Récupérer l'URL de ton instance (ex: `https://ton-compte.onlyoffice.com`)
+3. La renseigner dans `frontend/src/environments/environment.ts` :
+
+```typescript
+export const environment = {
+  onlyofficeUrl: 'https://ton-compte.onlyoffice.com'
+};
+```
+
+### 4. Lancer le projet
 
 ```bash
-./mvnw spring-boot:run
-```
-
-L'API est accessible sur `http://localhost:9000/tasksmanager`.
-
----
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-ng serve
+docker-compose up --build
 ```
 
 L'application est accessible sur `http://localhost:4200`.
 
 ---
 
-## Configuration complète — référence
+## Configuration complète — référence backend
 
 <details>
 <summary>Voir toutes les propriétés disponibles</summary>
