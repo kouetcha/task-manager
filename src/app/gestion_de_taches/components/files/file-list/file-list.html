@@ -1,0 +1,63 @@
+<div class="file-list mb-1">
+  <!-- En-tête avec compteur et bouton d'ajout -->
+  <div class="flex items-center justify-between mb-2">
+    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">
+      Fichiers joints ({{ files.length }})
+    </p>
+    <div class="flex space-x-2">
+      <!-- Bouton voir tout (actif seulement s'il y a des fichiers) -->
+      <button *ngIf="files.length > 0" 
+              (click)="openViewAllModal()"
+              class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+              matTooltip="Voir tous les fichiers">
+        <mat-icon class="text-sm mr-1">zoom_out_map</mat-icon>
+        Voir tout
+      </button>
+      <!-- Bouton d'ajout de fichier -->
+       @if(isCreateur)
+     { <button (click)="fileInput.click()"
+              class="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
+              matTooltip="Ajouter un fichier">
+        <mat-icon class="text-sm mr-1">attach_file</mat-icon>
+        Ajouter
+      </button>}
+      <!-- Input file caché -->
+      <input #fileInput type="file" multiple (change)="onFilesSelected($event)" style="display: none" />
+    </div>
+  </div>
+
+  <!-- Liste des fichiers de la page courante -->
+  <div class="space-y-2" *ngIf="paginatedFiles.length > 0; else noFiles">
+    <app-file-card
+     [isCreateur]="isCreateur"
+      *ngFor="let file of paginatedFiles"
+      [file]="file"
+      (view)="onView($event)"
+      (delete)="onDelete($event)"
+    ></app-file-card>
+  </div>
+
+  <!-- Message si aucun fichier -->
+  <ng-template #noFiles>
+    <p class="text-sm text-gray-500 dark:text-gray-400 italic">Aucun fichier joint</p>
+  </ng-template>
+
+  <!-- Pagination -->
+  <div *ngIf="files.length > pageSize" class="flex items-center justify-between mt-3">
+    <button (click)="previousPage()" [disabled]="currentPage === 1"
+            class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50 
+                   bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      Précédent
+    </button>
+    <span class="text-xs text-gray-700 dark:text-gray-300">Page {{ currentPage }} / {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+            class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded disabled:opacity-50
+                   bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+                   hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      Suivant
+    </button>
+  </div>
+</div>

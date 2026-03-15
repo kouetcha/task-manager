@@ -1,0 +1,134 @@
+<header class="sticky top-0 z-30 bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
+  <div class="flex h-16 items-center justify-between px-4 lg:px-6">
+    <!-- Bouton menu burger -->
+    <button
+      type="button"
+      class="rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+      (click)="sidebarService.toggle()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <!-- Titre de la page -->
+    <div class="flex-1 lg:ml-0">
+      <h1 class="text-lg font-semibold text-gray-900 dark:text-white lg:text-xl">Tableau de bord</h1>
+    </div>
+
+    <!-- Actions du header -->
+    <div class="flex items-center space-x-3">
+      <!-- Barre de recherche -->
+      <div class="hidden md:block">
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            class="w-64 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 py-2 pl-10 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
+
+      <!-- Sélecteur de thème -->
+      <div class="relative" #themeMenuContainer>
+        <button
+          class="rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          (click)="toggleThemeMenu()"
+        >
+          <mat-icon>
+            @if (themeService.currentMode() === 'light') {
+              light_mode
+            } @else if (themeService.currentMode() === 'dark') {
+              dark_mode
+            } @else {
+              brightness_auto
+            }
+          </mat-icon>
+        </button>
+
+        <!-- Dropdown thème -->
+        @if (isThemeMenuOpen) {
+          <div class="absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+            <button
+              (click)="setTheme('light')"
+              class="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <mat-icon class="mr-2 text-yellow-500">light_mode</mat-icon>
+              Clair
+              @if (themeService.currentMode() === 'light') {
+                <mat-icon class="ml-auto text-indigo-600">check</mat-icon>
+              }
+            </button>
+            <button
+              (click)="setTheme('dark')"
+              class="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <mat-icon class="mr-2 text-blue-500">dark_mode</mat-icon>
+              Sombre
+              @if (themeService.currentMode() === 'dark') {
+                <mat-icon class="ml-auto text-indigo-600">check</mat-icon>
+              }
+            </button>
+            <button
+              (click)="setTheme('system')"
+              class="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <mat-icon class="mr-2 text-gray-500">brightness_auto</mat-icon>
+              Système
+              @if (themeService.currentMode() === 'system') {
+                <mat-icon class="ml-auto text-indigo-600">check</mat-icon>
+              }
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Notifications -->
+      <button class="relative rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <mat-icon>notifications_none</mat-icon>
+        <span class="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"></span>
+      </button>
+
+      <!-- Menu utilisateur -->
+      <div class="relative" #userMenuContainer>
+        <button
+          class="flex items-center space-x-2 rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+          (click)="toggleUserMenu()"
+        >
+          <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+            @if (user?.prenom && user?.nom) {
+              <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                {{ user?.prenom?.[0] }}{{ user?.nom?.[0] }}
+              </span>
+            } @else {
+              <mat-icon class="text-indigo-600 dark:text-indigo-400">person</mat-icon>
+            }
+          </div>
+          <span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
+            {{ user?.prenom }} {{ user?.nom }}
+          </span>
+          <mat-icon class="hidden text-gray-500 dark:text-gray-400 sm:block">expand_more</mat-icon>
+        </button>
+
+        <!-- Dropdown utilisateur -->
+        @if (isUserMenuOpen) {
+          <div class="absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700 sm:hidden">
+              <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user?.prenom }} {{ user?.nom }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ user?.email }}</p>
+            </div>
+            <a routerLink="/app/profile" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Mon profil
+            </a>
+            <a routerLink="/app/settings" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Paramètres
+            </a>
+            <hr class="my-1 border-gray-100 dark:border-gray-700">
+            <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Déconnexion
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>

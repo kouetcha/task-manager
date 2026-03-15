@@ -1,0 +1,8 @@
+.nav-menu .mat-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-menu .mat-icon {
+  color: #4f46e5; /* indigo-600 */
+}

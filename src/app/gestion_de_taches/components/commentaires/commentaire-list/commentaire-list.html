@@ -1,0 +1,112 @@
+<div class="space-y-2 px-2 h-full flex flex-col">
+  <!-- En-tête cliquable pour plier/déplier -->
+  <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center gap-2 cursor-pointer" (click)="toggleCollapse()">
+      <svg 
+        class="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-200"
+        [class.rotate-180]="!collapsed"
+        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+        <mat-icon class="text-blue-500">comment</mat-icon>
+        Commentaires
+      </h3>
+    </div>
+    <span class="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
+      {{ commentaires.length }}
+    </span>
+  </div>
+
+  <!-- Contenu des commentaires (affiché uniquement si non replié) -->
+  <div *ngIf="!collapsed" #scrollContainer class="flex-1 overflow-y-auto min-h-0 space-y-1">
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center py-6">
+      <div class="flex items-center gap-2 text-gray-400 dark:text-gray-500">
+        <div class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+        <div class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+        <div class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && commentaires.length === 0"
+         class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-500">
+      <mat-icon class="text-5xl mb-2 opacity-30">chat_bubble_outline</mat-icon>
+      <p class="text-sm italic">Aucun commentaire pour le moment.</p>
+      <p class="text-xs mt-1 opacity-70">Soyez le premier à commenter !</p>
+    </div>
+
+    <!-- Messages -->
+    <div class="space-y-1">
+      <app-commentaire-card
+  
+        *ngFor="let comment of commentaires"
+        [commentaire]="comment"
+        [currentUserId]="currentUserId"
+        [typeElem]="typeElem"
+
+        (updated)="onCommentUpdated($event)"
+        (deleted)="onCommentDeleted($event)"
+        (viewFile)="onView($event)"
+        (ajoutFichiers)="onAddFiles(comment, $event)"
+        (deleteFile)="onDelete($event,comment.id)">
+      </app-commentaire-card>
+
+      
+    </div>
+  </div>
+
+  <!-- Formulaire d'ajout (affiché uniquement si non replié) -->
+  <div  *ngIf="!collapsed" class="sticky bottom-0 pt-3 mt-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex-shrink-0">
+
+    <!-- Aperçu fichiers -->
+    <div *ngIf="selectedFiles.length" class="mb-2 flex flex-wrap gap-2 px-1">
+      <div
+        *ngFor="let file of selectedFiles; let i = index"
+        class="flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full text-sm"
+      >
+        <mat-icon class="text-base text-blue-500 dark:text-blue-300" style="font-size:16px;width:16px;height:16px;">attach_file</mat-icon>
+        <span class="text-blue-700 dark:text-blue-300 max-w-[120px] truncate">{{ file.name }}</span>
+        <button (click)="removeFile(i)" class="ml-1 text-blue-400 hover:text-red-500 dark:text-blue-300 dark:hover:text-red-400 transition-colors">
+          <mat-icon style="font-size:14px;width:14px;height:14px;">close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Input row -->
+    <div class="flex items-end gap-2 pb-3">
+      <img
+        [src]="currentUserProfilePicture || 'assets/default-avatar.png'"
+        alt="Avatar"
+        class="w-9 h-9 rounded-full object-cover border-2 border-blue-200 dark:border-blue-700 flex-shrink-0 mb-1"
+      />
+
+      <div class="flex-1 flex items-end gap-2 bg-gray-100 dark:bg-gray-800 rounded-2xl px-3 py-2 border border-gray-200 dark:border-gray-700 focus-within:border-blue-400 transition-colors">
+        <textarea
+          [(ngModel)]="newCommentContent"
+          placeholder="Écrire un commentaire..."
+           (focus)="onFocusInput()" 
+          class="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 resize-none outline-none text-sm leading-relaxed max-h-32"
+          rows="1"
+          (input)="autoResize($event)"
+        ></textarea>
+
+        <!-- Attach -->
+        <label class="cursor-pointer text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400 transition-colors flex-shrink-0 mb-0.5">
+          <mat-icon style="font-size:20px;width:20px;height:20px;">attach_file</mat-icon>
+          <input type="file" multiple (change)="onFilesSelected($event)" class="hidden" />
+        </label>
+      </div>
+
+      <!-- Send button -->
+      <button
+        (click)="addComment()"
+        [disabled]="!newCommentContent.trim() && selectedFiles.length === 0"
+        class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center flex-shrink-0 transition-all shadow-md hover:shadow-lg active:scale-95 mb-1"
+      >
+        <mat-icon style="font-size:18px;width:18px;height:18px;">send</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

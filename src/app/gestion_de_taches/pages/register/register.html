@@ -1,0 +1,390 @@
+<div class="register-page">
+  <div class="register-container">
+    <div class="register-card">
+      <!-- Logo et en-tête -->
+      <div class="register-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <span class="logo-letter">T</span>
+          </div>
+          <div class="logo-text">
+            <h2>TaskFlow</h2>
+            <p class="logo-subtitle">Gestion d'équipe & projets</p>
+          </div>
+        </div>
+        <h1 class="register-title">Créer votre compte d'équipe</h1>
+        <p class="register-subtitle">Rejoignez des milliers d'équipes qui organisent leurs projets avec TaskFlow</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="registerForm" (ngSubmit)="submit()" class="register-form">
+        <!-- Section Informations de base -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>group</mat-icon>
+            Informations du membre
+          </h3>
+          
+          <!-- Rôle dans l'équipe -->
+          <div class="form-group">
+            <label for="roleProjet" class="form-label">
+              <mat-icon class="label-icon">assignment_ind</mat-icon>
+              Rôle dans l'équipe
+            </label>
+            <div class="select-container">
+              <select 
+                id="roleProjet"
+                class="form-select" 
+                formControlName="roleProjet"
+                [class.invalid]="registerForm.get('roleProjet')?.touched && registerForm.get('roleProjet')?.invalid">
+                <option value="" disabled selected>-- Sélectionnez votre rôle --</option>
+                <option value="CHEF_PROJET">Chef de projet</option>
+                <option value="MEMBRE_EQUIPE">Membre d'équipe</option>
+                <option value="COLLABORATEUR">Collaborateur externe</option>
+                <option value="OBSERVATEUR">Observateur</option>
+              </select>
+              <mat-icon class="select-icon">expand_more</mat-icon>
+            </div>
+            <div class="error-message" *ngIf="registerForm.get('roleProjet')?.touched && registerForm.get('roleProjet')?.invalid">
+              <mat-icon>error_outline</mat-icon>
+              <span>Veuillez sélectionner un rôle</span>
+            </div>
+          </div>
+
+          <!-- Nom et Prénom -->
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="nom" class="form-label">
+                <mat-icon class="label-icon">badge</mat-icon>
+                Nom
+              </label>
+              <div class="input-container">
+                <input 
+                  id="nom"
+                  class="form-input" 
+                  formControlName="nom" 
+                  type="text"
+                  placeholder="Votre nom"
+                  [class.invalid]="registerForm.get('nom')?.touched && registerForm.get('nom')?.invalid">
+                <mat-icon class="input-icon">person</mat-icon>
+              </div>
+              <div class="error-message" *ngIf="registerForm.get('nom')?.touched && registerForm.get('nom')?.invalid">
+                <mat-icon>error_outline</mat-icon>
+                <span>Le nom est requis</span>
+              </div>
+            </div>
+
+            <div class="form-group half">
+              <label for="prenom" class="form-label">
+                <mat-icon class="label-icon">face</mat-icon>
+                Prénom
+              </label>
+              <div class="input-container">
+                <input 
+                  id="prenom"
+                  class="form-input" 
+                  formControlName="prenom" 
+                  type="text"
+                  placeholder="Votre prénom"
+                  [class.invalid]="registerForm.get('prenom')?.touched && registerForm.get('prenom')?.invalid">
+                <mat-icon class="input-icon">person_outline</mat-icon>
+              </div>
+              <div class="error-message" *ngIf="registerForm.get('prenom')?.touched && registerForm.get('prenom')?.invalid">
+                <mat-icon>error_outline</mat-icon>
+                <span>Le prénom est requis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Contact -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>contact_mail</mat-icon>
+            Coordonnées professionnelles
+          </h3>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email" class="form-label">
+              <mat-icon class="label-icon">mail_outline</mat-icon>
+              Adresse email professionnelle
+            </label>
+            <div class="input-container">
+              <input 
+                id="email"
+                class="form-input" 
+                formControlName="email" 
+                type="email"
+                placeholder="prenom.nom@entreprise.com"
+                [class.invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+              <mat-icon class="input-icon">mail</mat-icon>
+            </div>
+            <div class="error-message" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ emailError }}</span>
+            </div>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="form-group">
+            <label for="telephone" class="form-label">
+              <mat-icon class="label-icon">phone</mat-icon>
+              Téléphone (optionnel)
+            </label>
+            <div class="input-container">
+              <input 
+                id="telephone"
+                class="form-input" 
+                formControlName="telephone" 
+                type="tel"
+                placeholder="+33612345678"
+                [class.invalid]="registerForm.get('telephone')?.touched && registerForm.get('telephone')?.invalid">
+              <mat-icon class="input-icon">phone_iphone</mat-icon>
+            </div>
+            <div class="error-message" *ngIf="registerForm.get('telephone')?.touched && registerForm.get('telephone')?.invalid">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ telephoneError }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Sécurité -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>lock</mat-icon>
+            Sécurité du compte
+          </h3>
+
+          <!-- Mot de passe -->
+          <div class="form-group">
+            <label for="motdepasse" class="form-label">
+              <mat-icon class="label-icon">lock_outline</mat-icon>
+              Mot de passe
+            </label>
+            <div class="input-container">
+              <input 
+                id="motdepasse"
+                class="form-input" 
+                formControlName="motdepasse" 
+                [type]="showPassword ? 'text' : 'password'"
+                placeholder="••••••••"
+                [class.invalid]="registerForm.get('motdepasse')?.touched && registerForm.get('motdepasse')?.invalid">
+              <mat-icon class="input-icon">lock</mat-icon>
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility('motdepasse')">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="error-message" *ngIf="registerForm.get('motdepasse')?.touched && registerForm.get('motdepasse')?.invalid">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ passwordError }}</span>
+            </div>
+            
+            <!-- Indicateurs de force du mot de passe -->
+            <div class="password-strength" *ngIf="registerForm.get('motdepasse')?.value">
+              <div class="strength-bar" [style.width.%]="passwordStrength">
+                <div class="strength-fill" [class]="getPasswordStrengthClass()"></div>
+              </div>
+              <span class="strength-text">{{ getPasswordStrengthText() }}</span>
+            </div>
+            
+            <!-- Conseils mot de passe -->
+            <div class="password-hints">
+              <p class="hint-title">Votre mot de passe doit contenir :</p>
+              <ul>
+                <li [class.valid]="hasMinLength">
+                  <mat-icon>{{ hasMinLength ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  8 caractères minimum
+                </li>
+                <li [class.valid]="hasUpperCase">
+                  <mat-icon>{{ hasUpperCase ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  Une majuscule
+                </li>
+                <li [class.valid]="hasLowerCase">
+                  <mat-icon>{{ hasLowerCase ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  Une minuscule
+                </li>
+                <li [class.valid]="hasNumber">
+                  <mat-icon>{{ hasNumber ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  Un chiffre
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Confirmation mot de passe -->
+          <div class="form-group">
+            <label for="confirmMotdepasse" class="form-label">
+              <mat-icon class="label-icon">lock_reset</mat-icon>
+              Confirmer le mot de passe
+            </label>
+            <div class="input-container">
+              <input 
+                id="confirmMotdepasse"
+                class="form-input" 
+                formControlName="confirmMotdepasse" 
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                placeholder="••••••••"
+                [class.invalid]="registerForm.errors?.['mismatch'] && registerForm.get('confirmMotdepasse')?.touched">
+              <mat-icon class="input-icon">lock</mat-icon>
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility('confirmMotdepasse')">
+                <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="error-message" *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmMotdepasse')?.touched">
+              <mat-icon>error_outline</mat-icon>
+              <span>Les mots de passe ne correspondent pas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditions générales -->
+        <div class="terms-section">
+          <label class="checkbox-container">
+            <input type="checkbox" formControlName="acceptTerms" required>
+            <span class="checkmark"></span>
+            <span class="terms-text">
+              J'accepte les 
+              <a href="/terms" target="_blank">Conditions d'utilisation</a> 
+              et la 
+              <a href="/privacy" target="_blank">Politique de confidentialité</a> de TaskFlow
+            </span>
+          </label>
+          <div class="error-message" *ngIf="registerForm.get('acceptTerms')?.touched && registerForm.get('acceptTerms')?.invalid">
+            <mat-icon>error_outline</mat-icon>
+            <span>Vous devez accepter les conditions</span>
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <button 
+          class="submit-button" 
+          type="submit"
+          [disabled]="registerForm.invalid || isLoading"
+          [class.loading]="isLoading">
+          <span *ngIf="!isLoading">
+            <mat-icon>group_add</mat-icon>
+            Créer mon compte d'équipe
+          </span>
+          <span *ngIf="isLoading" class="loading-spinner">
+            <mat-icon class="spinning">autorenew</mat-icon>
+            Création en cours...
+          </span>
+        </button>
+
+        <!-- Lien de connexion -->
+        <div class="login-link">
+          <p>Vous avez déjà un compte TaskFlow ?</p>
+          <a href="/login" class="login-button">
+            <mat-icon>login</mat-icon>
+            Se connecter
+          </a>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="separator">
+          <span>ou s'inscrire avec</span>
+        </div>
+
+        <!-- Boutons sociaux -->
+        <div class="social-register">
+          <button type="button" class="social-button google">
+            <mat-icon>login</mat-icon>
+            Google
+          </button>
+          <button type="button" class="social-button microsoft">
+            <mat-icon>login</mat-icon>
+            Microsoft
+          </button>
+        </div>
+      </form>
+
+      <!-- Footer -->
+      <div class="register-footer">
+        <p>
+          En rejoignant TaskFlow, vous pourrez créer des projets, assigner des tâches à votre équipe,
+          suivre l'avancement en temps réel et collaborer efficacement, où que vous soyez.
+        </p>
+      </div>
+    </div>
+
+    <!-- Bannière latérale avec avantages -->
+    <div class="register-sidebar">
+      <div class="sidebar-content">
+        <h2 class="leading-relaxed">Pourquoi choisir TaskFlow pour votre équipe ?</h2>
+        
+        <div class="benefits">
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="benefit-content">
+              <h3>Gestion de projets intuitive</h3>
+              <p>Créez des projets, organisez-les en tableaux, listes et cartes. Visualisez tout d'un coup d'œil.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="benefit-content">
+              <h3>Collaboration en temps réel</h3>
+              <p>Invitez des membres, assignez des tâches, commentez et recevez des notifications instantanées.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <mat-icon>analytics</mat-icon>
+            </div>
+            <div class="benefit-content">
+              <h3>Suivi de performance</h3>
+              <p>Visualisez l'avancement des projets avec des diagrammes de Gantt, tableaux de bord et rapports.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <mat-icon>cloud_sync</mat-icon>
+            </div>
+            <div class="benefit-content">
+              <h3>Accessible partout</h3>
+              <p>Sur le web, mobile ou tablette, vos données sont synchronisées en temps réel.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compteurs -->
+        <div class="counters">
+          <div class="counter">
+            <div class="counter-number">50 000+</div>
+            <div class="counter-label">Équipes</div>
+          </div>
+          <div class="counter">
+            <div class="counter-number">2M+</div>
+            <div class="counter-label">Tâches accomplies</div>
+          </div>
+          <div class="counter">
+            <div class="counter-number">99.9%</div>
+            <div class="counter-label">Disponibilité</div>
+          </div>
+        </div>
+
+        <!-- Avis -->
+        <div class="testimonial">
+          <div class="testimonial-avatar">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=testimonial1" alt="Avatar">
+          </div>
+          <div class="testimonial-content">
+            <p>"TaskFlow a transformé notre façon de travailler. Notre équipe est plus organisée et productive que jamais !"</p>
+            <div class="testimonial-author">
+              <strong>Sophie Lefebvre</strong>
+              <span>Chef de projet chez InnovTech</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

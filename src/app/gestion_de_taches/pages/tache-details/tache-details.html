@@ -1,0 +1,99 @@
+<!-- src/app/gestion_de_taches/pages/tache-details/tache-details.html -->
+
+<!-- FAB navigation rapide -->
+@if (tache) {
+  <button
+    mat-fab
+    class="!fixed bottom-[15rem] right-[0.1rem] z-[9] bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
+    [matMenuTriggerFor]="navMenu"
+    aria-label="Navigation rapide"
+    matTooltip="Aller à une section"
+    matTooltipPosition="left">
+    <mat-icon>menu_book</mat-icon>
+  </button>
+
+  <mat-menu #navMenu="matMenu">
+    <ng-template matMenuContent>
+      <button mat-menu-item (click)="scrollTo('section-tache')">
+        <mat-icon>info</mat-icon>
+        <span>Détails de la tâche</span>
+      </button>
+    </ng-template>
+  </mat-menu>
+}
+
+<!-- Bouton retour en haut -->
+@if (showScrollTop) {
+  <button
+    (click)="scrollToTop()"
+    class="fixed bottom-6 right-6 z-50 p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-opacity"
+    aria-label="Retour en haut">
+    <mat-icon>arrow_upward</mat-icon>
+  </button>
+}
+
+<!-- Conteneur principal -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+  <!-- En-tête -->
+  <div class="flex items-center justify-between mb-6">
+    <button
+      (click)="goBack()"
+      class="flex items-center text-indigo-600 dark:text-indigo-400 hover:underline">
+      <mat-icon>arrow_back</mat-icon>
+      <span class="ml-1">Retour aux tâches</span>
+    </button>
+
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {{ tache?.designation || 'Tâche' }}
+    </h1>
+
+    <!-- Spacer pour centrer le titre -->
+    <div class="w-10"></div>
+  </div>
+
+  <!-- Contenu -->
+  @if (tache) {
+
+    <!-- Section Détail tâche -->
+    <section id="section-tache" class="scroll-mt-20 mb-10">
+      <div class="flex items-center gap-2 mb-4">
+        <mat-icon class="text-indigo-600">info</mat-icon>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Détails de la tâche</h2>
+      </div>
+      <app-tache-detail
+        [tache]="tache"
+        [currentUserId]="getUser()?.id || 0"
+        [currentUserProfilePicture]="getUser()?.profilePicture || ''"
+        (editableChamps)="onApplieELementChange($event)"
+        (viewFile)="onViewFile($event)"
+        (ajoutFichiers)="onAddFiles(tache, $event)"
+        (deleteFile)="onDeleteFile($event, tache.id)">
+      </app-tache-detail>
+    </section>
+
+  } @else {
+    <!-- Spinner chargement -->
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+</div>
+
+<!-- Modals -->
+<app-pdf-modal
+  [isOpen]="isPdfModalOpen"
+  [pdfUrl]="pdfPreviewUrl"
+  [fileName]="fileName"
+  (closed)="onPdfModalClosed()">
+</app-pdf-modal>
+
+@if (isOnlyOfficeModalOpen && fichierInfo) {
+  <app-onlyoffice-viewer
+    [fileInfo]="fichierInfo"
+    [mode]="'view'"
+    (closed)="onOnlyOfficeModalClosed()"
+    (error)="onViewerError($event)">
+  </app-onlyoffice-viewer>
+}

@@ -1,0 +1,77 @@
+<div class="flex items-center justify-between p-2 border border-gray-200 dark:border-gray-700 rounded m-1 relative bg-white dark:bg-gray-800">
+  <!-- Affichage normal -->
+  <div class="flex-1 break-all" *ngIf="!editing; else editTemplate">
+    <span class="text-gray-900 dark:text-gray-100">{{ emailDto.email }}</span>
+    <span *ngIf="!emailDto.active" class="ml-2 text-xs text-red-400 italic">inactif</span>
+  </div>
+
+  <!-- Mode édition -->
+  <ng-template #editTemplate>
+    <div class="flex flex-1 items-center gap-1">
+      <input
+        #emailInput
+        type="email"
+        [(ngModel)]="editedEmail"
+        (blur)="onInputBlur()"
+        (keyup.enter)="saveEdit()"
+        (keyup.escape)="cancelEdit()"
+        class="flex-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        [disabled]="isProcessing"
+      />
+      <button
+        (mousedown)="onButtonMousedown()"
+        (click)="saveEdit()"
+        [disabled]="isProcessing"
+        class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <span *ngIf="!isProcessing">OK</span>
+        <span *ngIf="isProcessing">...</span>
+      </button>
+      <button
+        (mousedown)="onButtonMousedown()"
+        (click)="cancelEdit()"
+        [disabled]="isProcessing"
+        class="px-2 py-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs rounded disabled:opacity-50"
+      >
+        ✕
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Bouton ⋮ déclencheur du menu -->
+  @if(isCreateur)
+{  <button
+    #menuTrigger
+    *ngIf="!editing"
+    class="bg-transparent border-none text-xl leading-none cursor-pointer px-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
+    (click)="toggleActions($event)"
+    [disabled]="isProcessing"
+  >
+    ⋮
+  </button>}
+
+  <!-- Template du menu overlay -->
+  <ng-template #menuTemplate>
+    <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg min-w-[120px] py-1">
+      <button
+        class="block w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        (click)="startEdit(); closeMenu()"
+      >
+        Modifier
+      </button>
+      <button
+        class="block w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+        (click)="onToggleActive(); closeMenu()"
+      >
+        {{ activeButtonLabel }}
+      </button>
+      <button
+        class="block w-full px-4 py-2 text-left text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900"
+        (click)="onDelete(); closeMenu()"
+      >
+        Supprimer
+      </button>
+    </div>
+  </ng-template>
+</div>
+

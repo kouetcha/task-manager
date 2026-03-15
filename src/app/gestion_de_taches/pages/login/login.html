@@ -1,0 +1,175 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Logo et en-tête -->
+      <div class="login-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <span class="logo-letter">T</span>
+          </div>
+          <div class="logo-text">
+            <h2>TaskFlow</h2>
+            <p class="logo-subtitle">Gestion d'équipe & projets</p>
+          </div>
+        </div>
+        <h1 class="login-title">Connexion à votre espace d'équipe</h1>
+        <p class="login-subtitle">Accédez à vos projets, tâches et collaborateurs en toute simplicité</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="loginForm" (ngSubmit)="submit()" class="login-form">
+        <!-- Champ Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <mat-icon class="label-icon">mail_outline</mat-icon>
+            Adresse email
+          </label>
+          <div class="input-container">
+            <input 
+              id="email"
+              class="form-input" 
+              formControlName="email" 
+              type="email"
+              placeholder="prenom.nom@entreprise.com"
+              [class.invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+            <mat-icon class="input-icon">mail</mat-icon>
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+            <mat-icon>error_outline</mat-icon>
+            <span>Veuillez entrer une adresse email valide</span>
+          </div>
+        </div>
+
+        <!-- Champ Mot de passe -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <mat-icon class="label-icon">lock_outline</mat-icon>
+            Mot de passe
+          </label>
+          <div class="input-container">
+            <input 
+              id="password"
+              class="form-input" 
+              formControlName="motdepasse" 
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              [class.invalid]="loginForm.get('motdepasse')?.touched && loginForm.get('motdepasse')?.invalid">
+            <mat-icon class="input-icon">lock</mat-icon>
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('motdepasse')?.touched && loginForm.get('motdepasse')?.invalid">
+            <mat-icon>error_outline</mat-icon>
+            <span>Le mot de passe est requis</span>
+          </div>
+        </div>
+
+        <!-- Options additionnelles -->
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" formControlName="rememberMe">
+            <span class="checkmark"></span>
+            Se souvenir de moi
+          </label>
+          <a href="/forgot-password" class="forgot-password">
+            Mot de passe oublié ?
+          </a>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <button 
+          class="submit-button" 
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading"
+          [class.loading]="isLoading">
+          <span *ngIf="!isLoading">
+            <mat-icon>login</mat-icon>
+            Se connecter
+          </span>
+          <span *ngIf="isLoading" class="loading-spinner">
+            <mat-icon class="spinning">autorenew</mat-icon>
+            Connexion...
+          </span>
+        </button>
+
+        <!-- Séparateur -->
+        <div class="separator">
+          <span>ou</span>
+        </div>
+
+        <!-- Boutons sociaux -->
+        <div class="social-login">
+          <button type="button" class="social-button google">
+            <mat-icon>login</mat-icon>
+            Continuer avec Google
+          </button>
+          <button type="button" class="social-button microsoft">
+            <mat-icon>login</mat-icon>
+            Continuer avec Microsoft
+          </button>
+        </div>
+
+        <!-- Lien d'inscription -->
+        <div class="register-link">
+          <p>Vous n'avez pas encore de compte d'équipe ?</p>
+          <a href="/register" class="register-button">
+            <mat-icon>group_add</mat-icon>
+            Créer un compte TaskFlow
+          </a>
+        </div>
+      </form>
+
+      <!-- Footer -->
+      <div class="login-footer">
+        <p>
+          En vous connectant, vous acceptez nos 
+          <a href="/terms">Conditions d'utilisation</a> et notre 
+          <a href="/privacy">Politique de confidentialité</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Bannière latérale avec avantages -->
+    <div class="login-sidebar">
+      <div class="sidebar-content">
+        <h2>Pourquoi TaskFlow ?</h2>
+        <p class="sidebar-subtitle">La plateforme de gestion de projets qui simplifie le travail d'équipe</p>
+        
+        <div class="features-list">
+          <div class="feature-item">
+            <mat-icon>check_circle</mat-icon>
+            <span>Gestion de projets intuitive (tableaux, listes, cartes)</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>check_circle</mat-icon>
+            <span>Collaboration en temps réel avec votre équipe</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>check_circle</mat-icon>
+            <span>Suivi de performance et tableaux de bord</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>check_circle</mat-icon>
+            <span>Accessible partout : web, mobile, tablette</span>
+          </div>
+        </div>
+
+        <div class="testimonial">
+          <div class="testimonial-content">
+            <p>"TaskFlow a révolutionné la coordination de nos équipes. Plus de 50 projets gérés simultanément avec une clarté exceptionnelle."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=testimonial2" alt="Avatar">
+              </div>
+              <div class="author-info">
+                <strong>Thomas Martin</strong>
+                <span>Chef de produit, TechCorp</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

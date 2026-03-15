@@ -1,0 +1,120 @@
+<!-- src/app/gestion_de_taches/pages/taches/taches.component.html -->
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+
+  <!-- Header -->
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-0">
+      Mes Taches
+    </h1>
+    <button
+      (click)="openCreateDialog()"
+      class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+      [disabled]="loading"
+    >
+      <mat-icon class="mr-2 text-sm">add</mat-icon>
+      Nouveau tache
+    </button>
+  </div>
+
+  <!-- Conteneur principal -->
+  <ng-container *ngIf="!loading; else loadingTemplate">
+
+    <!-- Filtres -->
+    <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="relative">
+        <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch()"
+          placeholder="Rechercher un tache..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+        />
+      </div>
+      <div>
+        <select
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onStatusChange()"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+        >
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{ status === 'TOUS' ? 'Tous les statuts' : getStatusLabel(status) }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cas 1: Taches disponibles -->
+    <ng-container *ngIf="filteredTaches.length > 0">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
+        <div *ngFor="let tache of filteredTaches"
+             class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+          <app-tache-card
+            [tache]="tache"
+            [user]="user()!"
+            (edit)="openEditDialog($event)"
+            (delete)="openDeleteDialog($event)"
+            (editEmail)="onEditEmail($event)"
+            (ajoutFichiers)="onAddFiles(tache,$event)"
+            (editableChamps)="onApplieELementChange($event)">
+          </app-tache-card>
+        </div>
+      </div>
+
+      <!-- Paginator -->
+      <div class="mt-6 flex justify-center">
+        <mat-paginator
+          [length]="totalElements"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [pageIndex]="currentPage"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Sélectionner la page">
+        </mat-paginator>
+      </div>
+    </ng-container>
+
+    <!-- Cas 2: Aucun tache -->
+    <div *ngIf="totalElements === 0 && !searchTerm && selectedStatus === 'TOUS'"
+         class="text-center py-12">
+      <mat-icon class="text-6xl text-gray-400 mb-4">folder_open</mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Aucun tache pour le moment
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        Commencez par créer votre premier tache !
+      </p>
+      <button (click)="openCreateDialog()"
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+        <mat-icon class="mr-2 text-sm">add</mat-icon>
+        Créer un tache
+      </button>
+    </div>
+
+    <!-- Cas 3: Aucun résultat après filtrage -->
+    <div *ngIf="totalElements > 0 && filteredTaches.length === 0"
+         class="text-center py-12">
+      <mat-icon class="text-6xl text-gray-400 mb-4">search_off</mat-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Aucun résultat
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        Aucun tache ne correspond à vos critères de recherche.
+      </p>
+      <button (click)="resetFilters()"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline">
+        Effacer les filtres
+      </button>
+    </div>
+
+  </ng-container>
+
+  <!-- Spinner Loading -->
+  <ng-template #loadingTemplate>
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  </ng-template>
+
+</div>

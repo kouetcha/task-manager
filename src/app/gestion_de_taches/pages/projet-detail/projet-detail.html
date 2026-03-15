@@ -1,0 +1,143 @@
+<!-- Bouton flottant de navigation (FAB) - visible uniquement si le projet est chargé -->
+@if (projet) {
+  <button
+    mat-fab
+    
+    class="!fixed bottom-[15rem] right-[0.1rem] z-[9] bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
+    [matMenuTriggerFor]="navMenu"
+    aria-label="Navigation rapide"
+    matTooltip="Aller à une section"
+    matTooltipPosition="left">
+    <mat-icon>menu_book</mat-icon>
+  </button>
+
+  <!-- Menu contextuel -->
+  <mat-menu #navMenu="matMenu" class="nav-menu">
+    <ng-template matMenuContent>
+      <button mat-menu-item (click)="scrollTo('section-projet')">
+        <mat-icon>info</mat-icon>
+        <span>Détails du projet</span>
+      </button>
+      <button mat-menu-item (click)="scrollTo('section-activites')">
+        <mat-icon>list_alt</mat-icon>
+        <span>Activités</span>
+      </button>
+      @if (activiteSelected) {
+        <button mat-menu-item (click)="scrollTo('section-taches')">
+          <mat-icon>checklist</mat-icon>
+          <span>Tâches de l'activité</span>
+        </button>
+      }
+    </ng-template>
+  </mat-menu>
+}
+
+<!-- Bouton retour en haut (apparaît après défilement) -->
+@if (showScrollTop) {
+  <button
+    (click)="scrollToTop()"
+    class="fixed bottom-6 right-6 z-50 p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-opacity"
+    aria-label="Retour en haut">
+    <mat-icon>arrow_upward</mat-icon>
+  </button>
+}
+
+<!-- Conteneur principal -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- En-tête -->
+  <div class="flex items-center justify-between mb-6">
+    <button
+      (click)="goBack()"
+      class="flex items-center text-indigo-600 dark:text-indigo-400 hover:underline">
+      <mat-icon>arrow_back</mat-icon>
+      <span class="ml-1">Retour aux projets</span>
+    </button>
+
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {{ projet?.designation || 'Projet' }}
+    </h1>
+
+    <div class="w-10"></div>
+  </div>
+
+  <!-- Contenu principal -->
+  @if (projet) {
+    <!-- Section Détails -->
+    <section id="section-projet" class="scroll-mt-20 mb-10">
+      <app-projet-card-detail
+        (editableChamps)="onApplieELementChange($event)"
+        [projet]="projet"
+        [currentUserId]="getUser()?.id || 0"
+        [currentUserProfilePicture]="(getUser() )?.profilePictureLink || ''"
+        (viewFile)="onViewFile($event)"
+        (deleteFile)="onDeleteFile($event, 'projet', projet.id)"
+        (ajoutFichiers)="onAddFiles(projet, $event)">
+      </app-projet-card-detail>
+    </section>
+
+    <!-- Section Activités -->
+    <section id="section-activites" class="scroll-mt-20 mb-10">
+      <div class="flex items-center gap-2 mb-4">
+        <mat-icon class="text-indigo-600">list_alt</mat-icon>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Activités</h2>
+      </div>
+      <app-activite-section
+        [projetId]="projetId"
+        (viewFile)="onViewFile($event)"
+        (activiteSelected)="onActiviteSelected($event)"
+        [currentUserId]="(getUser() )?.id || 0"
+        [currentUserEmail]="getUser()?.email||''"
+        [currentUserProfilePicture]="(getUser())?.profilePictureLink || ''"
+        (activiteSelectedDelete)="onActiviteSelectedDelete($event)"
+        (deleteFile)="onDeleteFile($event.file, 'activite', $event.id)">
+      </app-activite-section>
+    </section>
+
+    <!-- Section Tâches (conditionnelle) -->
+    @if (activiteSelected) {
+      <section id="section-taches" class="scroll-mt-20 mb-10">
+        <div class="flex items-center gap-2 mb-4">
+          <mat-icon class="text-indigo-600">checklist</mat-icon>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Tâches de l'activité : {{ activiteSelected.designation }}
+          </h2>
+        </div>
+        <app-tache-section
+          [selectedTache]="tacheSelected"
+          [activiteId]="activiteSelected.id"
+          (tacheSelected)="onTacheSelected($event)"
+          (tacheSelectedDelete)="onTacheSelectedDelete($event)"
+          [currentUserId]="(getUser())?.id || 0"
+           [currentUserEmail]="getUser()?.email||''"
+          (viewFile)="onViewFile($event)"
+          (deleteFile)="onDeleteFile($event.file, 'tache', $event.id)">
+        </app-tache-section>
+      </section>
+    }
+  } @else {
+    <!-- Chargement -->
+    <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+  }
+</div>
+
+<!-- Modals -->
+<app-pdf-modal
+  [isOpen]="isPdfModalOpen"
+  [pdfUrl]="pdfPreviewUrl"
+  [fileName]="fileName"
+  (closed)="onPdfModalClosed()">
+</app-pdf-modal>
+
+<app-onlyoffice-viewer
+  *ngIf="isOnlyOfficeModalOpen"
+  [fileInfo]="fichierInfo!"
+  [mode]="'view'"
+  (closed)="onOnlyOfficeModalClosed()"
+  (error)="onViewerError($event)">
+</app-onlyoffice-viewer>
+
+<ng-template #loadingTemplate>
+  <div class="flex justify-center py-12">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+</ng-template>

@@ -1,0 +1,11 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
+html, body { height: 100%;
+
+}
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.main-content {
+  padding-top: 40px; /* Hauteur de ta navbar (h-16 = 4rem = 64px) */
+}
+
