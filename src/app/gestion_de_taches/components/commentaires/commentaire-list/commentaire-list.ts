@@ -26,6 +26,7 @@ import { NotificationService } from '../../../services/notification.service';
 export class CommentaireList implements OnChanges, OnInit{
  @Input() parentId!: number;
   @Input() typeElem!: ELEMENTTYPE;
+  @Input() isCreateur!: boolean;
   @Input() currentUserId!: number; 
   @Input() currentUserProfilePicture?: string;
   @Output() viewFile = new EventEmitter<FichierInfo>();

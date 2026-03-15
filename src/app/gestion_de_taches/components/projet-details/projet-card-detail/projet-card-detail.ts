@@ -47,7 +47,9 @@ export class ProjetCardDetail {
   ) {
   
   }
-
+  isCreateur():boolean{
+   return this.currentUserId===this.projet.createur?.id
+  }
     getStatusColor(status: string): string {
     const colors: Record<string, string> = {
       EN_ATTENTE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',

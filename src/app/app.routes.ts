@@ -16,6 +16,9 @@ import { Projets } from './gestion_de_taches/pages/projets/projets';
 import { ProjectDetail } from './gestion_de_taches/pages/project-detail/project-detail';
 import { ProjetDetail } from './gestion_de_taches/pages/projet-detail/projet-detail';
 import { Activites } from './gestion_de_taches/pages/activites/activites';
+import { Taches } from './gestion_de_taches/pages/taches/taches';
+import { ActiviteDetails } from './gestion_de_taches/pages/activite-details/activite-details';
+import { TacheDetails } from './gestion_de_taches/pages/tache-details/tache-details';
 
 export const routes: Routes = [
   {
@@ -34,10 +37,13 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
-      {path:'projects',component:Projets},
+      {path:'projets',component:Projets},
+       {path:'projets/:id',component:ProjetDetail},
        {path:'activites',component:Activites},
-      {path:'projects/:id',component:ProjetDetail},
-       {path:'projets/:id',component:ProjetDetail}
+        {path:'activites/:id',component:ActiviteDetails},
+      {path:'taches',component:Taches},
+      {path:'taches/:id',component:TacheDetails}
+     
      
     ],
   },

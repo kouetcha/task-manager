@@ -53,6 +53,9 @@ export class TacheDetail  implements OnInit{
    console.log("Tache selectionnée ID  "+ this.tache.id);
   }
 
+  isCreateur():boolean{
+   return this.currentUserId===this.tache.createur?.id
+  }
     getStatusColor(status: string): string {
     const colors: Record<string, string> = {
       EN_ATTENTE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',

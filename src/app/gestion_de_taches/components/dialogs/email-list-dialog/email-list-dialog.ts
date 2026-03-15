@@ -35,7 +35,7 @@ export class EmailListDialog {
   newEmail = '';
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { emails: EmailDto[]; emailType: MailTYPE; entiteId: number },
+    @Inject(MAT_DIALOG_DATA) public data: { emails: EmailDto[]; emailType: MailTYPE; entiteId: number;isCreateur:boolean },
     private dialogRef: MatDialogRef<EmailListDialog>,
     private emailService: EmailService,
     private snackBar: MatSnackBar,

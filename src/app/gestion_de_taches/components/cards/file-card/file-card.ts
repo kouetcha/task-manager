@@ -11,6 +11,7 @@ import { MaterialModule } from '../../../material.module';
 })
 export class FileCard {
   @Input() file!: FichierInfo;
+  @Input() isCreateur!: boolean;
   @Output() view = new EventEmitter<FichierInfo>();
   @Output() delete = new EventEmitter<FichierInfo>();
 

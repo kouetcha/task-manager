@@ -86,6 +86,7 @@
         (viewFile)="onViewFile($event)"
         (activiteSelected)="onActiviteSelected($event)"
         [currentUserId]="(getUser() )?.id || 0"
+        [currentUserEmail]="getUser()?.email||''"
         [currentUserProfilePicture]="(getUser())?.profilePictureLink || ''"
         (activiteSelectedDelete)="onActiviteSelectedDelete($event)"
         (deleteFile)="onDeleteFile($event.file, 'activite', $event.id)">
@@ -107,6 +108,7 @@
           (tacheSelected)="onTacheSelected($event)"
           (tacheSelectedDelete)="onTacheSelectedDelete($event)"
           [currentUserId]="(getUser())?.id || 0"
+           [currentUserEmail]="getUser()?.email||''"
           (viewFile)="onViewFile($event)"
           (deleteFile)="onDeleteFile($event.file, 'tache', $event.id)">
         </app-tache-section>

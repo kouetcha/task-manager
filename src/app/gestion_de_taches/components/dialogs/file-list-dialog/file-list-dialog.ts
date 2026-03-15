@@ -17,7 +17,7 @@ export class FileListDialog {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { files: FichierInfo[] }) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { files: FichierInfo[];isCreateur:boolean }) {}
 
   onView(file: FichierInfo): void {
     this.viewFile.emit(file);

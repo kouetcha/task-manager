@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
 import { Activite } from '../models/activite.model';
 import { CreateActiviteDto, DateDto, TexteDto, UpdateActiviteDto } from '../interfaces/base-entity-gestion';
-import { Page } from '../interfaces/generals';
+import { ActiviteDto, Page } from '../interfaces/generals';
 
 
 @Injectable({
@@ -23,6 +23,10 @@ export class ActiviteService {
   getByProjet(projetId: number): Observable<Activite[]> {
     return this.http.get<Activite[]>(`${this.API_URL}/activites/projet/${projetId}`);
   }
+    getByProjetAndEmail(projetId: number, email:string): Observable<Activite[]> {
+    return this.http.get<Activite[]>(`${this.API_URL}/activites/projet/${projetId}/email/${email}`);
+  }
+
 
   /**
    * Récupère une activité par son ID
@@ -48,6 +52,11 @@ getMesActivites(
   );
 }
   
+getListActiviteDto(email:string):Observable<ActiviteDto[]>{
+   return this.http.get<ActiviteDto[]>(
+    `${this.API_URL}/activites/email/${email}/dto-list`
+  );
+}
 
   /**
    * Crée une activité dans un projet

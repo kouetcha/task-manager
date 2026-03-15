@@ -11,6 +11,7 @@ import { EditableDate } from '../editable-date/editable-date';
 import { EditableText } from '../editable-text/editable-text';
 import { NotificationService } from '../../../services/notification.service';
 import { OnlyOfficeViewer } from '../onlyoffice-viewer/onlyoffice-viewer';
+import { User } from '../../../models/user';
 
 @Component({
   selector: 'app-project-card',
@@ -20,6 +21,7 @@ import { OnlyOfficeViewer } from '../onlyoffice-viewer/onlyoffice-viewer';
 })
 export class ProjectCard {
   @Input() projet!: Projet;
+  @Input() user!: User;
   @Output() edit = new EventEmitter<Projet>();
   @Output() delete = new EventEmitter<Projet>();
   @Output() ajoutFichiers = new EventEmitter<File[]>();
@@ -33,7 +35,7 @@ export class ProjectCard {
   onlyOfficeFileUrl: string | null = null;
   fichierInfo:FichierInfo|null=null;
   currentDocumentId?: number;
-  constructor(private fichierService:FichierService,
+  constructor(
      private notification: NotificationService
   ){
 
@@ -55,6 +57,10 @@ export class ProjectCard {
       ANNULE: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     };
     return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+  }
+
+  isCreateur():boolean{
+   return this.user.id===this.projet.createur?.id
   }
 
   onEdit(): void {

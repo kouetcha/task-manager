@@ -14,12 +14,13 @@
         Voir tout
       </button>
       <!-- Bouton d'ajout -->
-      <button (click)="showAddInput = !showAddInput"
+       @if(isCreateur)
+     { <button (click)="showAddInput = !showAddInput"
               class="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
               matTooltip="Ajouter un email">
         <mat-icon class="text-sm mr-1">add</mat-icon>
         Ajouter
-      </button>
+      </button>}
     </div>
   </div>
 
@@ -49,6 +50,7 @@
     <app-email-card
       *ngFor="let email of paginatedEmails"
       [emailDto]="email"
+      [isCreateur]="isCreateur"
       [emailType]="emailType"
       (update)="onEmailUpdated($event)"
       (delete)="onEmailDeleted($event)"

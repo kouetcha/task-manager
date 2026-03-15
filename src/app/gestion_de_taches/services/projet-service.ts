@@ -1,10 +1,10 @@
 // src/app/gestion_de_taches/services/projet.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
-import { AuthService } from './AuthService';
 import { CreateProjetDto, DateDto, Projet, TexteDto, UpdateProjetDto } from '../interfaces/base-entity-gestion';
+import { Page, ProjetDto } from '../interfaces/generals';
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +13,34 @@ export class ProjetService {
   private readonly API_URL = environment.API_URL + '/tasksmanager/projets';
 
   constructor(
-    private http: HttpClient,
-    private authService: AuthService
+    private http: HttpClient
   ) {}
 
-  getMesProjets(): Observable<Projet[]> {
-    return this.http.get<Projet[]>(this.API_URL);
-  }
+
+  getMesProjets(
+  email: string,
+  page: number = 0,
+  size: number = 10,
+  sort: string = 'dateCreation,desc'
+): Observable<Page<Projet>> {
+  const params = new HttpParams()
+    .set('page', page)
+    .set('size', size)
+    .set('sort', sort);
+
+  return this.http.get<Page<Projet>>(
+    `${this.API_URL}/email/${email}`,
+    { params }
+  );
+}
+
+getListProjetDto(email:string):Observable<ProjetDto[]>{
+   return this.http.get<ProjetDto[]>(
+    `${this.API_URL}/email/${email}/dto-list`
+  );
+}
+
+ 
 
   getProjetById(id: number): Observable<Projet> {
     return this.http.get<Projet>(`${this.API_URL}/${id}`);
@@ -111,6 +132,6 @@ export class ProjetService {
   private formatDateISO(date: Date | string | undefined): string {
     if (!date) return new Date().toISOString();
     const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toISOString(); // Format ISO complet
+    return d.toISOString();
   }
 }

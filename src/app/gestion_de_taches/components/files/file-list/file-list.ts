@@ -14,6 +14,7 @@ import { FileCard } from '../../cards/file-card/file-card';
 })
 export class FileList {
   @Input() files: FichierInfo[] = [];
+  @Input() isCreateur!: boolean;
   @Input() pageSize: number = 3;               // nombre d'éléments par page
   @Output() viewFile = new EventEmitter<FichierInfo>();
   @Output() deleteFile = new EventEmitter<FichierInfo>();
@@ -72,7 +73,9 @@ export class FileList {
   openViewAllModal(): void {
     const dialogRef = this.dialog.open(FileListDialog, {
       width: '600px',
-      data: { files: this.files }
+      data: { files: this.files,
+             isCreateur:this.isCreateur
+       }
     });
 
     // Souscrire aux événements de la modale pour les répercuter

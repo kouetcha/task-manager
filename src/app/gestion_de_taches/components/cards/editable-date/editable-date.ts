@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './editable-date.css',
 })
 export class EditableDate {
+  @Input() isCreateur!: boolean;
   @Input() value: Date | null = null;
   @Input() min?: Date;
   @Input() max?: Date;

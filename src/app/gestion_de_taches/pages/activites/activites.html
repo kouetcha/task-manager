@@ -12,7 +12,7 @@
       [disabled]="loading"
     >
       <mat-icon class="mr-2 text-sm">add</mat-icon>
-      Nouveau activite
+      Nouvelle activité
     </button>
   </div>
 
@@ -51,6 +51,7 @@
              class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <app-activite-card
             [activite]="activite"
+            [user]="user()!"
             (edit)="openEditDialog($event)"
             (delete)="openDeleteDialog($event)"
             (editEmail)="onEditEmail($event)"

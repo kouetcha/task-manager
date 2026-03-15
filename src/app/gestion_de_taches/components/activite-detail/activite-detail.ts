@@ -25,7 +25,8 @@ export class ActiviteDetail implements OnInit{
   @Output() deleteFile = new EventEmitter<FichierInfo>();
   @Output() ajoutFichiers = new EventEmitter<File[]>();
   @Output() activiteModofier=new EventEmitter<Activite>();
-   @Input() currentUserId!:number;
+  @Input() currentUserId!:number;
+  
   @Input() currentUserProfilePicture:string='';
 
   isPdfModalOpen = false;
@@ -48,6 +49,10 @@ export class ActiviteDetail implements OnInit{
 
   ) {
   
+  }
+
+    isCreateur():boolean{
+   return this.currentUserId===this.activite.createur?.id
   }
   ngOnInit(): void {
 

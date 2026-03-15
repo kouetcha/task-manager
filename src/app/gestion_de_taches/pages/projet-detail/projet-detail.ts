@@ -62,27 +62,28 @@ getUser(){
     private notification:NotificationService,
     private cdr: ChangeDetectorRef
   ) {
-  
+   this.authService.user$.subscribe((user) => {  
+      if (user) {
+      this.currentUserId = user.id;
+      this.user.set(user);
+    }});
   }
 
   ngOnInit(): void {
    
-    this.authService.user$.subscribe((user) => {
+    
   
-    if (user) {
-      this.currentUserId = user.id;
-      this.user.set(user);
-    }
+
      this.projetId = +this.route.snapshot.paramMap.get('id')!;
     this.loadProjet();
-});
+
   }
   getCurrentUserId(){
     return this.currentUserId;
   }
 
   goBack(): void {
-    this.router.navigate(['/app/projects']);
+    this.router.navigate(['/app/projets']);
   }
   onActiviteSelected(activite:Activite){
     this.activiteSelected=activite;

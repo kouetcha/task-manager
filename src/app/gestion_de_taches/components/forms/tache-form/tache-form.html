@@ -1,15 +1,89 @@
 <div class="h-full flex flex-col overflow-y-auto p-6">
   <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-    {{ isEditMode ? 'Modifier le tache' : 'Nouveau tache' }}
+    {{ isEditMode ? 'Modifier la tâche' : 'Nouvelle tâche' }}
   </h2>
 
-  <form [formGroup]="tacheForm" (ngSubmit)="onSubmit()" class="flex flex-col flex-1 overflow-hidden">
-    <!-- Zone défilante : tous les champs sauf les boutons -->
+  <!-- Spinner : chargement des activités -->
+  @if (!isEditMode && !data.activiteId && loadingActivites) {
+    <div class="flex flex-col items-center justify-center py-12 space-y-3">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Chargement des activités...</p>
+    </div>
+  }
+
+  <!-- Aucune activité disponible -->
+  @if (!isEditMode && !data.activiteId && !loadingActivites && activiteDtos.length === 0) {
+    <div class="flex flex-col items-center justify-center py-12 space-y-4 text-center">
+      <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+        <mat-icon class="text-indigo-400 dark:text-indigo-300" style="font-size: 32px; width: 32px; height: 32px;">
+          assignment_late
+        </mat-icon>
+      </div>
+      <div class="space-y-1">
+        <p class="text-base font-medium text-gray-700 dark:text-gray-200">Aucune activité disponible</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Créez d'abord une activité pour y associer cette tâche.<br>
+          <span class="text-xs text-gray-400">(Un projet sera également créé si nécessaire.)</span>
+        </p>
+      </div>
+
+      <!-- Bouton principal : ouvre ActiviteForm qui gère lui-même la cascade vers ProjetForm -->
+      <button type="button" (click)="openCreateActiviteDialog()"
+        class="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add</mat-icon>
+        Créer une activité
+      </button>
+
+      <button type="button" (click)="onCancel()"
+        class="inline-flex items-center gap-1 px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+        Annuler
+      </button>
+    </div>
+  }
+
+  <!-- Formulaire principal -->
+  <form
+    [formGroup]="tacheForm"
+    (ngSubmit)="onSubmit()"
+    class="flex flex-col flex-1 overflow-hidden"
+    [class.hidden]="!isEditMode && !data.activiteId && (loadingActivites || activiteDtos.length === 0)"
+  >
     <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+
+      <!-- Select activité (création sans activiteId) -->
+      @if (!isEditMode && !data.activiteId && activiteDtos.length > 0) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Activité *
+          </label>
+          <div class="flex gap-2 items-start">
+            <select
+              formControlName="activiteId"
+              class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+            >
+              <option [value]="null" disabled>-- Sélectionner une activité --</option>
+              @for (item of activiteDtos; track item.id) {
+                <option [value]="item.id">{{ item.designation }}</option>
+              }
+            </select>
+            <!-- Bouton créer activité inline (cascade projet gérée par ActiviteForm) -->
+            <button type="button" (click)="openCreateActiviteDialog()"
+              class="shrink-0 inline-flex items-center gap-1 px-3 py-2 border border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-400 text-sm rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+              title="Créer une nouvelle activité">
+              <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add</mat-icon>
+              Nouveau
+            </button>
+          </div>
+          @if (tacheForm.get('activiteId')?.invalid && tacheForm.get('activiteId')?.touched) {
+            <p class="mt-1 text-xs text-red-600">L'activité est obligatoire</p>
+          }
+        </div>
+      }
+
       <!-- Titre -->
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Titre du tache *
+          Titre de la tâche *
         </label>
         <input
           type="text"
@@ -17,10 +91,9 @@
           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
           [class.border-red-500]="tacheForm.get('designation')?.invalid && tacheForm.get('designation')?.touched"
         />
-        <div *ngIf="tacheForm.get('designation')?.invalid && tacheForm.get('designation')?.touched" 
-             class="mt-1 text-xs text-red-600">
-          Le titre est requis (minimum 3 caractères)
-        </div>
+        @if (tacheForm.get('designation')?.invalid && tacheForm.get('designation')?.touched) {
+          <p class="mt-1 text-xs text-red-600">Le titre est requis (minimum 3 caractères)</p>
+        }
       </div>
 
       <!-- Description -->
@@ -38,11 +111,12 @@
       <!-- Emails -->
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Emails
+          Emails (séparés par des virgules)
         </label>
         <input
           type="text"
           formControlName="emails"
+          placeholder="ex: a@mail.com, b@mail.com"
           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
         />
       </div>
@@ -67,96 +141,94 @@
           <input
             type="date"
             formControlName="dateFin"
-            [min]="tacheForm.get('dateDebut')?.value | date:'yyyy-MM-dd'"
+            [min]="tacheForm.get('dateDebut')?.value"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
           />
         </div>
       </div>
 
-      <!-- Statut (uniquement en mode édition) -->
-      <div *ngIf="isEditMode">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Statut
-        </label>
-        <select
-          formControlName="status"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
-        >
-          <option value="EN_ATTENTE">En attente</option>
-          <option value="EN_COURS">En cours</option>
-          <option value="TERMINE">Terminé</option>
-          <option value="ANNULE">Annulé</option>
-        </select>
-      </div>
-
-      <!-- Upload fichiers (uniquement en création) -->
-      <div *ngIf="!isEditMode">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Fichiers joints
-        </label>
-        <div
-          class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center"
-          (dragover)="$event.preventDefault()"
-          (drop)="$event.preventDefault()"
-        >
-          <input
-            type="file"
-            #fileInput
-            multiple
-            (change)="onFileSelected($event)"
-            class="hidden"
-          />
-          <button
-            type="button"
-            (click)="fileInput.click()"
-            class="text-indigo-600 dark:text-indigo-400 hover:underline"
+      <!-- Statut (édition uniquement) -->
+      @if (isEditMode) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Statut
+          </label>
+          <select
+            formControlName="status"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
           >
-            Choisir des fichiers
-          </button>
-          <span class="text-gray-500 dark:text-gray-400"> ou glisser-déposer</span>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
         </div>
+      }
 
-        <!-- Liste des fichiers sélectionnés -->
-        <div *ngIf="fichiers.length > 0" class="mt-2 space-y-1">
-          <div *ngFor="let file of fichiers; let i = index" 
-               class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
-            <span class="text-sm truncate">{{ file.name }}</span>
-            <button type="button" (click)="removeFichier(i)" class="text-red-600 hover:text-red-800">
-              <mat-icon class="text-sm">close</mat-icon>
+      <!-- Fichiers (création uniquement) -->
+      @if (!isEditMode) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Fichiers joints
+          </label>
+          <div
+            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center"
+            (dragover)="$event.preventDefault()"
+            (drop)="$event.preventDefault()"
+          >
+            <input type="file" #fileInput multiple (change)="onFileSelected($event)" class="hidden" />
+            <button type="button" (click)="fileInput.click()"
+              class="text-indigo-600 dark:text-indigo-400 hover:underline">
+              Choisir des fichiers
             </button>
+            <span class="text-gray-500 dark:text-gray-400"> ou glisser-déposer</span>
           </div>
-        </div>
 
-        <!-- Fichiers existants (mode édition) -->
-        <div *ngIf="isEditMode && fichiersExistants.length > 0" class="mt-2 space-y-1">
-          <p class="text-xs font-medium text-gray-500">Fichiers actuels:</p>
-          <div *ngFor="let fichier of fichiersExistants; let i = index" 
-               class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
-            <span class="text-sm truncate">{{ fichier.nomFichier }}</span>
-            <button type="button" (click)="removeFichierExistant(i)" class="text-red-600 hover:text-red-800">
-              <mat-icon class="text-sm">delete</mat-icon>
-            </button>
-          </div>
+          @if (fichiers.length > 0) {
+            <div class="mt-2 space-y-1">
+              @for (file of fichiers; track $index) {
+                <div class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                  <span class="text-sm truncate">{{ file.name }}</span>
+                  <button type="button" (click)="removeFichier($index)" class="text-red-600 hover:text-red-800">
+                    <mat-icon class="text-sm">close</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
         </div>
-      </div>
+      }
+
+      <!-- Fichiers existants (édition uniquement) -->
+      @if (isEditMode && fichiersExistants.length > 0) {
+        <div class="mt-2 space-y-1">
+          <p class="text-xs font-medium text-gray-500">Fichiers actuels :</p>
+          @for (fichier of fichiersExistants; track $index) {
+            <div class="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded">
+              <span class="text-sm truncate">{{ fichier.nomFichier }}</span>
+              <button type="button" (click)="removeFichierExistant($index)" class="text-red-600 hover:text-red-800">
+                <mat-icon class="text-sm">delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
     </div>
 
-    <!-- Boutons d'action (toujours visibles) -->
+    <!-- Boutons -->
     <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-      <button
-        type="button"
-        (click)="onCancel()"
-        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-      >
+      <button type="button" (click)="onCancel()"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Annuler
       </button>
-      <button
-        type="submit"
-        [disabled]="tacheForm.invalid || loading"
-        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span *ngIf="!loading">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
-        <mat-spinner *ngIf="loading" diameter="20" class="inline"></mat-spinner>
+      <button type="submit" [disabled]="tacheForm.invalid || loading"
+        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (!loading) {
+          {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+        } @else {
+          <mat-spinner diameter="20" class="inline"></mat-spinner>
+        }
       </button>
     </div>
   </form>

@@ -4,33 +4,47 @@
     <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + getStatusColor(projet.status)">
       {{ getStatusLabel(projet.status) }}
     </span>
-    <div class="flex space-x-2">
+    @if(isCreateur())
+   { <div class="flex space-x-2">
+      
       <button (click)="onEdit()"
+              [disabled]="!isCreateur()"
               class="p-1 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
               matTooltip="Modifier">
         <mat-icon>edit</mat-icon>
       </button>
       <button (click)="onDelete()"
+              [disabled]="!isCreateur()"
               class="p-1 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
               matTooltip="Supprimer">
         <mat-icon>delete</mat-icon>
       </button>
-    </div>
+    </div>}
   </div>
 
 
   <!-- Designation  -->
   <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-    <app-editable-text [value]="projet.designation" (valueChange)="onDesignationChange($event)"></app-editable-text>
+    <app-editable-text [value]="projet.designation" (valueChange)="onDesignationChange($event)"
+     [maxLength]="190"
+    
+    [isCreateur]="isCreateur()"
+    >
+
+    </app-editable-text>
   </h3>
     <!-- Description éditable -->
   <div class="mb-4 dark:text-white mb-2">
-    <app-editable-text [value]="projet.description||''" [multiline]="true" (valueChange)="onDescriptionChange($event)"></app-editable-text>
+    <app-editable-text [value]="projet.description||''" [multiline]="true" (valueChange)="onDescriptionChange($event)"
+     [isCreateur]="isCreateur()"
+      [maxLength]="290"
+    ></app-editable-text>
   </div>
 
   <!-- Emails -->
 <div *ngIf="projet.emails?.length" class="mb-4 space-y-2">
   <app-email-list
+    [isCreateur]="isCreateur()"
     [emails]="projet.emails||[]"
     [emailType]="'EMAIL_PROJET'"
     [entiteId]="projet.id"
@@ -46,6 +60,7 @@
       <mat-icon class="mr-2 text-sm">event</mat-icon>
       <span class="mr-2">Début:</span>
       <app-editable-date 
+        [isCreateur]="isCreateur()"
         [value]="projet.dateDebut" 
         [max]="projet.dateFin" 
         (valueChange)="onDateDebutChange($event)">
@@ -55,6 +70,7 @@
       <mat-icon class="mr-2 text-sm">event_busy</mat-icon>
       <span class="mr-2">Fin:</span>
       <app-editable-date 
+        [isCreateur]="isCreateur()"
         [value]="projet.dateFin" 
         [min]="projet.dateDebut" 
         (valueChange)="onDateFinChange($event)">
@@ -65,6 +81,7 @@
   <!-- Fichiers -->
   <div *ngIf="projet.fichiers?.length" class="mt-auto">
     <app-file-list
+      [isCreateur]="isCreateur()"
       [files]="projet.fichiers!"
       (viewFile)="onViewFile($event, 'projet', projet.id)"
       (deleteFile)="onDeleteFile($event)"
@@ -74,7 +91,7 @@
 
   <!-- Lien vers les détails -->
   <div class="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-    <a [routerLink]="['/app/projects', projet.id]"
+    <a [routerLink]="['/app/projets', projet.id]"
        class="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline flex items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">
       Voir les détails
       <mat-icon class="ml-1 text-sm">arrow_forward</mat-icon>

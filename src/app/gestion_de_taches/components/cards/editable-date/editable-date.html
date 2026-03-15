@@ -19,9 +19,10 @@
       </ng-template>
 
       <!-- Bouton à trois points -->
-      <button [matMenuTriggerFor]="menu" mat-icon-button class="opacity-0 group-hover:opacity-100 transition-opacity">
+       @if(isCreateur)
+    {  <button [matMenuTriggerFor]="menu" mat-icon-button class="opacity-0 group-hover:opacity-100 transition-opacity">
         <mat-icon>more_vert</mat-icon>
-      </button>
+      </button>}
       <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="startEdit()">
           <mat-icon>edit</mat-icon>

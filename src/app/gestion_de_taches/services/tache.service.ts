@@ -1,10 +1,11 @@
 // src/app/gestion_de_taches/services/tache.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
 import { Tache } from '../models/tache.model';
 import { CreateTacheDto, DateDto, TexteDto, UpdateTacheDto } from '../interfaces/base-entity-gestion';
+import { Page } from '../interfaces/generals';
 
 
 @Injectable({
@@ -21,7 +22,9 @@ export class TacheService {
   getByActivite(activiteId: number): Observable<Tache[]> {
     return this.http.get<Tache[]>(`${this.API_URL}/taches/activites/${activiteId}`);
   }
-
+  getByActiviteAndEmail(activiteId: number,email:string): Observable<Tache[]> {
+    return this.http.get<Tache[]>(`${this.API_URL}/taches/activites/${activiteId}/email/${email}`);
+  }
   /**
    * Récupère une activité par son ID
    */
@@ -48,6 +51,22 @@ export class TacheService {
     // Le PUT s'attend à un JSON, pas de FormData
     return this.http.put<Tache>(`${this.API_URL}/taches/${id}`, dto);
   }
+  getMesTaches(
+  email: string,
+  page: number = 0,
+  size: number = 10,
+  sort: string = 'dateCreation,desc'
+): Observable<Page<Tache>> {
+  const params = new HttpParams()
+    .set('page', page)
+    .set('size', size)
+    .set('sort', sort);
+
+  return this.http.get<Page<Tache>>(
+    `${this.API_URL}/taches/email/${email}`,
+    { params }
+  );
+}
 
   /**
    * Supprime une activité

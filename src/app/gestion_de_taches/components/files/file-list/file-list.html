@@ -14,12 +14,13 @@
         Voir tout
       </button>
       <!-- Bouton d'ajout de fichier -->
-      <button (click)="fileInput.click()"
+       @if(isCreateur)
+     { <button (click)="fileInput.click()"
               class="text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
               matTooltip="Ajouter un fichier">
         <mat-icon class="text-sm mr-1">attach_file</mat-icon>
         Ajouter
-      </button>
+      </button>}
       <!-- Input file caché -->
       <input #fileInput type="file" multiple (change)="onFilesSelected($event)" style="display: none" />
     </div>
@@ -28,6 +29,7 @@
   <!-- Liste des fichiers de la page courante -->
   <div class="space-y-2" *ngIf="paginatedFiles.length > 0; else noFiles">
     <app-file-card
+     [isCreateur]="isCreateur"
       *ngFor="let file of paginatedFiles"
       [file]="file"
       (view)="onView($event)"

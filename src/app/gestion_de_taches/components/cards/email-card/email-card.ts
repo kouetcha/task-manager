@@ -21,9 +21,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class EmailCard implements AfterViewInit, OnDestroy {
   @Input() emailDto!: EmailDto;
   @Input() emailType!: MailTYPE;
+  @Input() isCreateur!: boolean;
   @Output() update = new EventEmitter<EmailDto>();
   @Output() delete = new EventEmitter<number>();
   @Output() toggleActive = new EventEmitter<EmailDto>();
+  
 
   // Édition
   editing = false;

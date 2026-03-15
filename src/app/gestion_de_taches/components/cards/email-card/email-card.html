@@ -39,7 +39,8 @@
   </ng-template>
 
   <!-- Bouton ⋮ déclencheur du menu -->
-  <button
+  @if(isCreateur)
+{  <button
     #menuTrigger
     *ngIf="!editing"
     class="bg-transparent border-none text-xl leading-none cursor-pointer px-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
@@ -47,7 +48,7 @@
     [disabled]="isProcessing"
   >
     ⋮
-  </button>
+  </button>}
 
   <!-- Template du menu overlay -->
   <ng-template #menuTemplate>

@@ -12,6 +12,7 @@ import { EditableText } from '../editable-text/editable-text';
 import { NotificationService } from '../../../services/notification.service';
 import { OnlyOfficeViewer } from '../onlyoffice-viewer/onlyoffice-viewer';
 import { Activite } from '../../../models/activite.model';
+import { User } from '../../../models/user';
 
 @Component({
   selector: 'app-activite-card',
@@ -26,6 +27,7 @@ export class ActiviteCard {
   @Output() ajoutFichiers = new EventEmitter<File[]>();
   @Output() editableChamps=new EventEmitter<EditableActivieDto>
   @Output() editEmail = new EventEmitter<EmailDto>(); // pour remonter l'événement d'édition d'email
+  @Input() user!: User;
      // Visualisation
   isPdfModalOpen = false;
   pdfPreviewUrl: SafeResourceUrl|string  ='';
@@ -39,6 +41,11 @@ export class ActiviteCard {
   ){
 
   }
+
+   isCreateur():boolean{
+   return this.user.id===this.activite.createur?.id
+  }
+
   // Fonctions pour les statuts (à adapter selon votre logique métier)
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {

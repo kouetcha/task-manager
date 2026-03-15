@@ -25,6 +25,7 @@ export class ActiviteSection implements OnInit{
   @Output() activiteSelected = new EventEmitter<Activite>();
   @Output() activiteSelectedDelete = new EventEmitter<Activite>();
   @Input() currentUserId!:number;
+  @Input() currentUserEmail!:string;
   @Input() currentUserProfilePicture:string='';
   activites: Activite[] = [];
   selectedActivite?: Activite;
@@ -55,9 +56,10 @@ export class ActiviteSection implements OnInit{
   
   }
 
+
   loadActivites(): void {
     this.loading = true;
-    this.activiteService.getByProjet(this.projetId).subscribe({
+    this.activiteService.getByProjetAndEmail(this.projetId,this.currentUserEmail).subscribe({
       next: (data) => {
         this.activites = data;
         if (this.activites.length > 0 && !this.selectedActivite) {

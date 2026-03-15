@@ -26,6 +26,7 @@ export class TacheSection implements OnInit{
   @Output() tacheSelected = new EventEmitter<Tache>();
   @Output() tacheSelectedDelete = new EventEmitter<Tache>();
    @Input() currentUserId:number=0;
+   @Input() currentUserEmail!:string;
    @Input() currentUserProfilePicture:string='';
   taches: Tache[] = [];
   @Input() selectedTache?: Tache;
@@ -44,21 +45,26 @@ export class TacheSection implements OnInit{
 
   constructor(
     private tacheService: TacheService,
-    private authService: AuthService,
     private notification: NotificationService,
     private cdr: ChangeDetectorRef,
     private fichierService:FichierService
   ) {}
 
   ngOnInit(): void {
-    // Si currentUserId n'est pas fourni en @Input, on le récupère ici
+   
     this.loadTaches();
   }
 
   loadTaches(): void {
     this.loading = true;
-    this.tacheService.getByActivite(this.activiteId).subscribe({
+    this.tacheService.getByActiviteAndEmail(this.activiteId,this.currentUserEmail).subscribe({
       next: (data) => {
+        console.log("DATA etByActiviteAndEmail ");
+        console.log("this.activiteId");
+        console.log(this.activiteId)
+        console.log("Email ");
+         console.log(this.currentUserEmail);
+        console.log(data);
         this.taches = data;
         if (this.taches.length > 0 && !this.selectedTache) {
           this.selectedTache = this.taches[0];

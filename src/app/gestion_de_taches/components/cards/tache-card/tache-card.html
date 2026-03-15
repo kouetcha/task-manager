@@ -21,11 +21,13 @@
 
   <!-- Designation  -->
   <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-    <app-editable-text [value]="tache.designation" (valueChange)="onDesignationChange($event)"></app-editable-text>
+    <app-editable-text [value]="tache.designation" (valueChange)="onDesignationChange($event)"
+     [maxLength]="180"
+    ></app-editable-text>
   </h3>
     <!-- Description éditable -->
   <div class="mb-4 dark:text-white mb-2">
-    <app-editable-text [value]="tache.description||''" [multiline]="true" (valueChange)="onDescriptionChange($event)"></app-editable-text>
+    <app-editable-text  [maxLength]="290" [value]="tache.description||''" [multiline]="true" (valueChange)="onDescriptionChange($event)"></app-editable-text>
   </div>
 
   <!-- Emails -->
@@ -34,6 +36,7 @@
     [emails]="tache.emails||[]"
     [emailType]="'EMAIL_ACTIVITE'"
     [entiteId]="tache.id"
+    [isCreateur]="isCreateur()"
     (emailAdded)="onEmailAdded($event, tache)"
     (emailUpdated)="onEmailUpdated($event, tache)"
     (emailDeleted)="onEmailDeleted($event, tache)"
@@ -46,6 +49,7 @@
       <mat-icon class="mr-2 text-sm">event</mat-icon>
       <span class="mr-2">Début:</span>
       <app-editable-date 
+        [isCreateur]="isCreateur()"
         [value]="tache.dateDebut" 
         [max]="tache.dateFin" 
         (valueChange)="onDateDebutChange($event)">
@@ -55,7 +59,8 @@
       <mat-icon class="mr-2 text-sm">event_busy</mat-icon>
       <span class="mr-2">Fin:</span>
       <app-editable-date 
-        [value]="tache.dateFin" 
+        [value]="tache.dateFin"
+        [isCreateur]="isCreateur()" 
         [min]="tache.dateDebut" 
         (valueChange)="onDateFinChange($event)">
       </app-editable-date>
@@ -66,6 +71,7 @@
   <div *ngIf="tache.fichiers?.length" class="mt-auto">
     <app-file-list
       [files]="tache.fichiers!"
+      [isCreateur]="isCreateur()"
       (viewFile)="onViewFile($event, 'tache', tache.id)"
       (deleteFile)="onDeleteFile($event)"
       (addFiles)="onAddFichiers($event)"
@@ -74,7 +80,7 @@
 
   <!-- Lien vers les détails -->
   <div class="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-    <a [routerLink]="['/app/projects', tache.id]"
+    <a [routerLink]="['/app/taches', tache.id]"
        class="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline flex items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">
       Voir les détails
       <mat-icon class="ml-1 text-sm">arrow_forward</mat-icon>

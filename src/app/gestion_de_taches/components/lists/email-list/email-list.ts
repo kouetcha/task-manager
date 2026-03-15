@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EmailDto, MailTYPE } from '../../../interfaces/base-entity-gestion';
+import { CreateurDto, EmailDto, MailTYPE } from '../../../interfaces/base-entity-gestion';
 import { EmailService } from '../../../services/emails/email-service';
 
 import { MaterialModule } from '../../../material.module';
 import { EmailListDialog } from '../../dialogs/email-list-dialog/email-list-dialog';
 import { EmailCard } from '../../cards/email-card/email-card';
+import { User } from '../../../models/user';
 
 @Component({
   selector: 'app-email-list',
@@ -18,9 +19,12 @@ import { EmailCard } from '../../cards/email-card/email-card';
 })
 export class EmailList implements AfterViewInit {
   @Input() emails: EmailDto[] = [];
+  @Input() isCreateur!: boolean;
   @Input() emailType!: MailTYPE;
   @Input() entiteId!: number;
   @Input() pageSize: number = 3;
+  @Input() user!: User;
+  @Input() createur!: CreateurDto;
 
   @Output() emailAdded = new EventEmitter<EmailDto>();
   @Output() emailUpdated = new EventEmitter<EmailDto>();
@@ -106,7 +110,8 @@ export class EmailList implements AfterViewInit {
       data: {
         emails: this.emails,
         emailType: this.emailType,
-        entiteId: this.entiteId
+        entiteId: this.entiteId,
+        isCreateur: this.isCreateur
       }
     });
 

@@ -12,6 +12,7 @@ import { EditableText } from '../editable-text/editable-text';
 import { NotificationService } from '../../../services/notification.service';
 import { OnlyOfficeViewer } from '../onlyoffice-viewer/onlyoffice-viewer';
 import { Tache } from '../../../models/tache.model';
+import { User } from '../../../models/user';
 
 @Component({
   selector: 'app-tache-card',
@@ -26,6 +27,7 @@ export class TacheCard {
   @Output() ajoutFichiers = new EventEmitter<File[]>();
   @Output() editableChamps=new EventEmitter<EditableTacheDto>
   @Output() editEmail = new EventEmitter<EmailDto>(); // pour remonter l'événement d'édition d'email
+  @Input() user!: User;
      // Visualisation
   isPdfModalOpen = false;
   pdfPreviewUrl: SafeResourceUrl|string  ='';
@@ -34,12 +36,16 @@ export class TacheCard {
   onlyOfficeFileUrl: string | null = null;
   fichierInfo:FichierInfo|null=null;
   currentDocumentId?: number;
-  constructor(private fichierService:FichierService,
+  constructor(
      private notification: NotificationService
   ){
 
   }
-  // Fonctions pour les statuts (à adapter selon votre logique métier)
+
+ isCreateur():boolean{
+   return this.user.id===this.tache.createur?.id
+  }
+
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       EN_COURS: 'En cours',

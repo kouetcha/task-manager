@@ -301,7 +301,7 @@ export class Activites implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.loadActivites();
-        this.snackBar.open('Activite créé avec succès', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Activite créée avec succès', 'Fermer', { duration: 3000 });
       }
     });
   }

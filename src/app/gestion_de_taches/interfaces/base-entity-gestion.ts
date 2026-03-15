@@ -24,12 +24,8 @@ export class Projet {
   status!: 'EN_ATTENTE' | 'EN_COURS' | 'TERMINE' | 'ANNULE';
   createurId!: number;
   emailType:MailTYPE="EMAIL_PROJET";
-  createur?: {
-    id: number;
-    nom: string;
-    prenom: string;
-    email: string;
-  };
+  createur?: CreateurDto;
+  
 
   fichiers?: FichierInfo[];
   dateUpload?: Date;
@@ -43,6 +39,13 @@ export class Projet {
       .join(',') ?? '';
   }
 }
+export interface  CreateurDto {
+    id: number;
+    nom: string;
+    prenom: string;
+    email: string;
+  };
+  
 export class Entite {
 
   id!: number;

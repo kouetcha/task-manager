@@ -1,30 +1,47 @@
 <div class="flex items-center group w-full">
-      <!-- Mode visualisation -->
-      <div *ngIf="!editing; else editMode" class="flex-1">
-        <span *ngIf="value; else placeholder">{{ value }}</span>
-        <ng-template #placeholder>
-          <span class="text-gray-400 italic">—</span>
-        </ng-template>
-      </div>
+  <!-- Mode visualisation -->
+  <div *ngIf="!editing; else editMode" class="flex-1">
+ <ng-container *ngIf="value; else placeholder">
+  <p class="text-justify hyphens-auto break-words leading-relaxed">
+    {{ displayValue }}
+  </p>
+<button
+  *ngIf="isTruncatable"
+  (click)="toggleExpanded($event)"
+  class="text-xs text-blue-500 mt-1 block 
+         transition-opacity
+         opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+  [class.sm:opacity-100]="expanded"
+>
+  {{ expanded ? 'Voir moins' : 'Voir plus' }}
+</button>
+</ng-container>
+    <ng-template #placeholder>
+      <span class="text-gray-400 italic">—</span>
+    </ng-template>
+  </div>
 
-      <!-- Mode édition -->
-      <ng-template #editMode>
-        <div class="flex-1 flex items-center gap-2">
-          <textarea *ngIf="multiline" [(ngModel)]="editedValue" class="w-full p-1 border rounded" rows="3"></textarea>
-          <input *ngIf="!multiline" type="text" [(ngModel)]="editedValue" class="w-full p-1 border rounded">
-          <button (click)="save()" mat-icon-button color="primary"><mat-icon>check</mat-icon></button>
-          <button (click)="cancel()" mat-icon-button><mat-icon>close</mat-icon></button>
-        </div>
-      </ng-template>
-
-      <!-- Bouton à trois points -->
-      <button [matMenuTriggerFor]="menu" mat-icon-button class="opacity-0 group-hover:opacity-100 transition-opacity">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="startEdit()">
-          <mat-icon>edit</mat-icon>
-          <span>Modifier</span>
-        </button>
-      </mat-menu>
+  <!-- Mode édition -->
+  <ng-template #editMode>
+    <div class="flex-1 flex items-center gap-2">
+      <textarea *ngIf="multiline" [(ngModel)]="editedValue" class="w-full p-1 border rounded" rows="3"></textarea>
+      <input *ngIf="!multiline" type="text" [(ngModel)]="editedValue" class="w-full p-1 border rounded">
+      <button (click)="save()" mat-icon-button color="primary"><mat-icon>check</mat-icon></button>
+      <button (click)="cancel()" mat-icon-button><mat-icon>close</mat-icon></button>
     </div>
+  </ng-template>
+
+  <!-- Bouton à trois points -->
+  @if(isCreateur) {
+    <button [matMenuTriggerFor]="menu" mat-icon-button class="opacity-0 group-hover:opacity-100 transition-opacity">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  }
+
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="startEdit()">
+      <mat-icon>edit</mat-icon>
+      <span>Modifier</span>
+    </button>
+  </mat-menu>
+</div>
