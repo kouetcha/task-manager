@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   # ===============================
@@ -11,9 +9,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: tasksmanager_global
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -32,7 +30,7 @@ services:
     container_name: tasksmanager-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -53,20 +51,37 @@ services:
     container_name: tasksmanager-backend
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - "9060:9000"
     environment:
       - SERVER_PORT=9000
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/tasksmanager_global?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
+      - SERVER_SERVLET_CONTEXT_PATH=/tasksmanager
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_CACHE_TYPE=redis
+      - SPRING_CACHE_REDIS_TIME_TO_LIVE=600000
+      - SPRING_CACHE_REDIS_KEY_PREFIX="tasksmanager::"
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=200MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=200MB
+      - SPRING_MVC_PATHMATCH_MATCHING_STRATEGY=ant-path-matcher
       - KOUETCHA_APP_JWTSECRET=${JWT_SECRET}
-      - KOUETCHA_APP_JWTEXPIRATIONMS=86400000
-      - CLIENT_URL=http://localhost:4200
-      - ALLOWED_ORIGIN=http://localhost:4200
+      - KOUETCHA_APP_JWTEXPIRATIONMS=${JWT_EXPIRATION_MS:-86400000}
+      - CLIENT_URL=${CLIENT_URL}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - MEDIA_DOCUMENT_TACHE=./media/document/tache/
+      - MEDIA_DOCUMENT_ACTIVITE=./media/document/activite/
+      - MEDIA_DOCUMENT_PROJET=./media/document/projet/
+      - MEDIA_COMMENTAIRE_TACHE=./media/commentaire/tache/
+      - MEDIA_COMMENTAIRE_ACTIVITE=./media/commentaire/activite/
+      - MEDIA_COMMENTAIRE_PROJET=./media/commentaire/projet/
+      - MEDIA_USER_PROFIL=./media/userProfil/
     volumes:
       - media_data:/app/media
     depends_on:
@@ -84,12 +99,37 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - API_URL=${API_URL:-http://localhost:9060}
+        - ONLY_OFFICE_URL=${ONLYOFFICE_URL:-http://localhost:8080}
     container_name: tasksmanager-frontend
     restart: unless-stopped
     ports:
-      - "4200:80"
+      - "4400:80"
     depends_on:
       - backend
+    networks:
+      - tasksmanager-network
+
+  # ===============================
+  # ONLYOFFICE (optionnel)
+  # Activé uniquement si ONLYOFFICE_INSTALL=true dans .env
+  # Si vous avez déjà une instance OnlyOffice, passez ONLYOFFICE_INSTALL=false
+  # et renseignez votre URL dans ONLYOFFICE_URL
+  # ===============================
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: tasksmanager-onlyoffice
+    restart: unless-stopped
+    profiles:
+      - onlyoffice
+    ports:
+      - "8070:80"
+    environment:
+      - JWT_ENABLED=false
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_logs:/var/log/onlyoffice
     networks:
       - tasksmanager-network
 
@@ -100,6 +140,8 @@ volumes:
   mysql_data:
   redis_data:
   media_data:
+  onlyoffice_data:
+  onlyoffice_logs:
 
 # ===============================
 # NETWORK

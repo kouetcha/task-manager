@@ -32,7 +32,7 @@ public class UtilisateurServiceImpl implements UtilisateurService{
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
   private final JwtUtils jwtUtils;
-  @Value("${media.userProfil}")
+  @Value("${media.user-profil}")
   private String mediaUserProfil;
   @Override
   public Utilisateur create(@Valid UtilisateurDto dto){

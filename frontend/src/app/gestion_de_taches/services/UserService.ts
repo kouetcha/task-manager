@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { ChangePasswordDto, CreateUserDto, LoginDto, UpdateUserDto } from '../interfaces/UserInterface';
-import { environment } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 import { User } from '../models/user';
 
 

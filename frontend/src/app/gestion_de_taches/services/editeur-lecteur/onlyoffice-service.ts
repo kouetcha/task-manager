@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, Subject, fromEvent, merge } from 'rxjs';
 import { map, filter, distinctUntilChanged } from 'rxjs/operators';
-import { environment } from '../../../../../environment';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../AuthService';
 import { EditorMode, getFileType, OnlyOfficeConfig, OnlyOfficeCustomization } from '../../models/document.model';
 import { FichierInfo } from '../../interfaces/base-entity-gestion';

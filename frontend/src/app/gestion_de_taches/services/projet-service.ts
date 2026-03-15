@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 import { CreateProjetDto, DateDto, Projet, TexteDto, UpdateProjetDto } from '../interfaces/base-entity-gestion';
 import { Page, ProjetDto } from '../interfaces/generals';
 

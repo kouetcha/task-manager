@@ -18,7 +18,7 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 - 💬 Commentaires avec pièces jointes sur chaque entité
 - 📎 Upload et visualisation de fichiers (OnlyOffice)
 - 📅 Vue calendrier et vue détail
-- 🔔 Notifications temps réel via WebSocket
+- 🔔 Notifications temps réel via WebSocket (à venir)
 - ⚡ Cache Redis pour les performances
 - 🔒 Permissions strictes — l'accès est toujours explicite
 
@@ -29,10 +29,9 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 | Couche          | Technologie                                      |
 |-----------------|--------------------------------------------------|
 | Backend         | Spring Boot 3, Spring Security, JPA / Hibernate  |
-| Frontend        | Angular, TypeScript                              |
+| Frontend        | Angular 17+, TypeScript                          |
 | Base de données | MySQL 8                                          |
 | Cache           | Redis                                            |
-| Temps réel      | WebSocket (STOMP)                                |
 | Auth            | JWT (Access + Refresh token)                     |
 | Visualisation   | OnlyOffice Document Server                       |
 | Stockage        | Système de fichiers local (configurable)         |
@@ -44,9 +43,19 @@ Task Manager permet à une équipe de gérer des **projets**, **activités** et 
 ```
 task-manager/
 ├── backend/          # API REST Spring Boot
+│   ├── Dockerfile
+│   └── src/
 ├── frontend/         # SPA Angular
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── src/
+│       └── environments/
+│           ├── environment.ts          # développement
+│           └── environment.prod.ts     # production
 ├── docker-compose.yml
 ├── .env.example
+├── start.ps1         # Script de démarrage Windows
+├── start.sh          # Script de démarrage Linux / Mac
 └── README.md
 ```
 
@@ -85,39 +94,76 @@ cd task-manager
 ### 2. Configurer les variables d'environnement
 
 ```bash
+# Linux / Mac
 cp .env.example .env
+
+# Windows
+copy .env.example .env
 ```
 
-Éditer le fichier `.env` :
-
-```env
-MYSQL_PASSWORD=yourpassword
-JWT_SECRET=yourSuperSecretKeyMinimum32Characters
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=adminPassword
-```
+Éditer le fichier `.env` et renseigner toutes les valeurs.
 
 ### 3. Configurer OnlyOffice
 
 La visualisation de documents nécessite une instance OnlyOffice Document Server.
 
-1. Créer un compte gratuit sur [personal.onlyoffice.com](https://personal.onlyoffice.com)
-2. Récupérer l'URL de ton instance (ex: `https://ton-compte.onlyoffice.com`)
-3. La renseigner dans `frontend/src/environments/environment.ts` :
+**Option A — Tu as déjà une instance OnlyOffice :**
+```env
+ONLYOFFICE_INSTALL=false
+ONLYOFFICE_URL=http://localhost:8070
+```
+
+**Option B — Tu n'as pas OnlyOffice (Docker l'installe) :**
+```env
+ONLYOFFICE_INSTALL=true
+ONLYOFFICE_URL=http://localhost:8070
+```
+> ⚠️ L'image OnlyOffice fait ~2 Go. Le premier lancement sera long.
+
+> ℹ️ L'URL OnlyOffice est appelée directement par le **navigateur** — utilise `localhost` et non l'IP du réseau Docker.
+
+### 4. Configurer le frontend
+
+Les URLs sont injectées au moment du build Docker depuis le `.env` :
+
+```env
+API_URL=http://localhost:9060
+ONLYOFFICE_URL=http://localhost:8070
+```
+
+Elles correspondent aux variables dans `frontend/src/environments/environment.ts` :
 
 ```typescript
 export const environment = {
-  onlyofficeUrl: 'https://ton-compte.onlyoffice.com'
+  production: false,
+  API_URL: 'http://localhost:9060',
+  ONLY_OFFICE_URL: 'http://localhost:8070'
 };
 ```
 
-### 4. Lancer le projet
+### 5. Lancer le projet
 
-```bash
-docker-compose up --build
+**Windows :**
+```powershell
+.\start.ps1
 ```
 
-L'application est accessible sur `http://localhost:4200`.
+**Linux / Mac :**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+Le script lit automatiquement `ONLYOFFICE_INSTALL` dans le `.env` et lance la bonne commande Docker.
+
+| Service    | URL                                    |
+|------------|----------------------------------------|
+| Frontend   | http://localhost:4400                  |
+| Backend    | http://localhost:9060/tasksmanager     |
+| Swagger    | http://localhost:9060/tasksmanager/swagger-ui/index.html |
+| OnlyOffice | http://localhost:8070 (si installé)    |
+| MySQL      | localhost:3307                         |
+| Redis      | localhost:6380                         |
 
 ---
 
@@ -180,8 +226,8 @@ spring.cache.redis.enable-statistics=true
 # ===============================
 # CORS / CLIENT
 # ===============================
-client.url=http://localhost:4200
-allowed_origin=http://localhost:4200
+client.url=http://localhost:4400
+allowed_origin=http://localhost:4400
 
 # ===============================
 # FILE UPLOAD
@@ -212,7 +258,7 @@ media.commentaire.tache=./media/commentaire/tache/
 media.commentaire.activite=./media/commentaire/activite/
 media.commentaire.projet=./media/commentaire/projet/
 
-media.userProfil=./media/userProfil/
+media.user-profil=./media/userProfil/
 
 # ===============================
 # SPRING MVC

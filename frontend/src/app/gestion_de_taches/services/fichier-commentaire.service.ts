@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Commentaire, ELEMENTTYPE, FichierInfo } from '../interfaces/base-entity-gestion';
-import { environment } from '../../../../environment';
+import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 export interface FichierCommentaire {

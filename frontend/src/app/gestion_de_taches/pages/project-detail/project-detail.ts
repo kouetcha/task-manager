@@ -17,7 +17,7 @@ import { Activite } from '../../models/activite.model';
 import { Tache } from '../../models/tache.model';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/AuthService';
-import { environment } from '../../../../../environment';
+import { environment } from '../../../../environments/environment';
 import { MaterialModule } from '../../material.module';
 import { FileList } from '../../components/files/file-list/file-list';
 import { EmailCard } from '../../components/cards/email-card/email-card';
