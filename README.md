@@ -242,4 +242,4 @@ spring.mvc.pathmatch.matching-strategy=ant-path-matcher
 
 ## Auteur
 
-**Kouetcha** — [GitHub](https://github.com/)
+**Kouetcha** — [GitHub](https://github.com/kouetcha)
