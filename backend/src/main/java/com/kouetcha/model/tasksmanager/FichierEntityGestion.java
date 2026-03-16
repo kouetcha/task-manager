@@ -102,14 +102,22 @@ public class FichierEntityGestion extends BaseVS implements Serializable {
         return "";
     }
 
-    private String recupererUrl(ServletRequestAttributes attrs) {
+        private String recupererUrl(ServletRequestAttributes attrs) {
 
-        HttpServletRequest request = attrs.getRequest();
+            HttpServletRequest request = attrs.getRequest();
 
-        String baseUrl = request.getScheme() + "://" +
-                request.getServerName() +
-                ":" + request.getServerPort();
+            // Log temporaire pour voir tous les headers
+            java.util.Collections.list(request.getHeaderNames())
+                .forEach(name -> System.out.println("HEADER: " + name + " = " + request.getHeader(name)));
 
-        return baseUrl + "/tasksmanager/" + recupererControlleur();
-    }
+            String scheme = request.getHeader("X-Forwarded-Proto") != null
+                ? request.getHeader("X-Forwarded-Proto")
+                : request.getScheme();
+
+            String host = request.getHeader("X-Forwarded-Host") != null
+                ? request.getHeader("X-Forwarded-Host")
+                : request.getServerName();
+
+            return scheme + "://" + host + "/tasksmanager/" + recupererControlleur();
+}
 }

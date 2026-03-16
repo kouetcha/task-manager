@@ -16,6 +16,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import java.util.Arrays;
@@ -43,6 +45,7 @@ public class WebSecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+    private final CorsConfigurationSource corsConfigurationSource;
 
     // AuthenticationProvider
     @Bean
@@ -62,34 +65,35 @@ public class WebSecurityConfig {
                 .collect(Collectors.joining(" "));
 
         http
+               .cors(cors -> cors.configurationSource(corsConfigurationSource)) 
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+               .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/utilisateur/connexion/**",
-                                "/utilisateur/image/**",
-                                "/utilisateur/create/**",
-                                "/fichiers-activite/**/download/**",
-                                "/fichiers-tache/**/download/**",
-                                "/fichiers-projet/**/download/**",
-                                "/fichiers-commentaire-activite/**/download/**",
-                                "/fichiers-commentaire-tache/**/download/**",
-                                "/fichiers-commentaire-projet/**/download/**",
-                                "/fichiers-activite/**/onlyoffice-save/**",
-                                "/fichiers-tache/**/onlyoffice-save/**",
-                                "/fichiers-projet/**/onlyoffice-save/**",
-                                "/fichiers-commentaire-activite/**/onlyoffice-save/**",
-                                "/fichiers-commentaire-tache/**/onlyoffice-save/**",
-                                "/fichiers-commentaire-projet/**/onlyoffice-save/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v2/api-docs",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**"
+                                new AntPathRequestMatcher("/utilisateur/connexion/**"),
+                                new AntPathRequestMatcher("/utilisateur/image/**"),
+                                new AntPathRequestMatcher("/utilisateur/create/**"),
+                                new AntPathRequestMatcher("/fichiers-activite/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-tache/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-projet/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-activite/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-tache/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-projet/**/download/**"),
+                                new AntPathRequestMatcher("/fichiers-activite/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/fichiers-tache/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/fichiers-projet/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-activite/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-tache/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/fichiers-commentaire-projet/**/onlyoffice-save/**"),
+                                new AntPathRequestMatcher("/swagger-ui.html"),
+                                new AntPathRequestMatcher("/swagger-ui/**"),
+                                new AntPathRequestMatcher("/v2/api-docs"),
+                                new AntPathRequestMatcher("/v3/api-docs/**"),
+                                new AntPathRequestMatcher("/swagger-resources/**")
                         ).permitAll()
                         .anyRequest().authenticated()
-                )
+                           )
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp ->
                                 csp.policyDirectives(

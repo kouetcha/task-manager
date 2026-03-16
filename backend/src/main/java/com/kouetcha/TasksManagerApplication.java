@@ -13,6 +13,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +24,9 @@ import org.springframework.web.client.RestTemplate;
 @EnableAsync
 @EnableAspectJAutoProxy
 @RequiredArgsConstructor
+@EnableSpringDataWebSupport(
+    pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO
+)
 public class TasksManagerApplication implements ApplicationRunner {
    private final UtilisateurService utilisateurService;
    @Value("${admin.email}")
