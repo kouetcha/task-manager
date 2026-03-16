@@ -107,7 +107,7 @@ services:
     ports:
       - "4400:80"
     environment:
-      - BACKEND_URL=${BACKEND_URL:-http://backend:9000}  # ✅ ajout
+      - BACKEND_URL=${BACKEND_URL:-http://backend:9000}  
     depends_on:
       - backend
     networks:
