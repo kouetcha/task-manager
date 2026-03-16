@@ -117,14 +117,19 @@ public class FichierCommentaire extends BaseVS implements Serializable {
         return "";
     }
 
-    private String recupererUrl(ServletRequestAttributes attrs) {
+        private String recupererUrl(ServletRequestAttributes attrs) {
 
-        HttpServletRequest request = attrs.getRequest();
+            HttpServletRequest request = attrs.getRequest();
 
-        String baseUrl = request.getScheme() + "://" +
-                request.getServerName() +
-                ":" + request.getServerPort();
+            // Forcer HTTPS via le header du proxy Railway
+            String scheme = request.getHeader("X-Forwarded-Proto") != null
+                ? request.getHeader("X-Forwarded-Proto")
+                : request.getScheme();
 
-        return baseUrl + "/tasksmanager/" + recupererControlleur();
-    }
+            String host = request.getHeader("X-Forwarded-Host") != null
+                ? request.getHeader("X-Forwarded-Host")
+                : request.getServerName();
+
+            return scheme + "://" + host + "/tasksmanager/" + recupererControlleur();
+        }
 }
