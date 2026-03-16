@@ -134,5 +134,5 @@ public class FichierCommentaire extends BaseVS implements Serializable {
                 : request.getServerName();
 
             return scheme + "://" + host + "/tasksmanager/" + recupererControlleur();
-        }
+}
 }

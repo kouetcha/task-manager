@@ -37,6 +37,11 @@ COPY --from=build /app/dist/gestion_de_taches_frontend/browser/ .
 # Copier la config Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# ✅ Copier l'entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# ✅ Remplace CMD nginx par l'entrypoint
+CMD ["/entrypoint.sh"]

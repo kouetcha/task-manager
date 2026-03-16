@@ -106,6 +106,8 @@ services:
     restart: unless-stopped
     ports:
       - "4400:80"
+    environment:
+      - BACKEND_URL=${BACKEND_URL:-http://backend:9000}  # ✅ ajout
     depends_on:
       - backend
     networks:
@@ -113,9 +115,6 @@ services:
 
   # ===============================
   # ONLYOFFICE (optionnel)
-  # Activé uniquement si ONLYOFFICE_INSTALL=true dans .env
-  # Si vous avez déjà une instance OnlyOffice, passez ONLYOFFICE_INSTALL=false
-  # et renseignez votre URL dans ONLYOFFICE_URL
   # ===============================
   onlyoffice:
     image: onlyoffice/documentserver:latest
