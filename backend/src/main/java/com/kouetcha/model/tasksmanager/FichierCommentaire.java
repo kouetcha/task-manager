@@ -117,11 +117,14 @@ public class FichierCommentaire extends BaseVS implements Serializable {
         return "";
     }
 
-        private String recupererUrl(ServletRequestAttributes attrs) {
+       private String recupererUrl(ServletRequestAttributes attrs) {
 
             HttpServletRequest request = attrs.getRequest();
 
-            // Forcer HTTPS via le header du proxy Railway
+            // Log temporaire pour voir tous les headers
+            java.util.Collections.list(request.getHeaderNames())
+                .forEach(name -> System.out.println("HEADER: " + name + " = " + request.getHeader(name)));
+
             String scheme = request.getHeader("X-Forwarded-Proto") != null
                 ? request.getHeader("X-Forwarded-Proto")
                 : request.getScheme();
