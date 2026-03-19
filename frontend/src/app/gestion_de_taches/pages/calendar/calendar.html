@@ -1,0 +1,43 @@
+<!-- calendar.html -->
+<div class="p-3 sm:p-6 bg-white dark:bg-gray-900 min-h-screen transition-colors"
+     [class.mobile-view]="isMobileView()">
+
+  <!-- Filtres -->
+  <div class="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+    <span class="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300">
+      Afficher :
+    </span>
+    @for (f of filters; track f.value) {
+      <button
+        (click)="setFilter(f.value)"
+        class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm
+               font-semibold border-2 transition-all"
+        [class.filter-projet]="f.value === 'PROJET'"
+        [class.filter-activite]="f.value === 'ACTIVITE'"
+        [class.filter-tache]="f.value === 'TACHE'"
+        [class.filter-tous]="f.value === 'TOUS'"
+        [class.active]="activeFilter() === f.value">
+        {{ f.icon }}
+        <span class="hidden sm:inline">{{ f.label }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Légende -->
+  <div class="legend flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-5 text-xs font-semibold text-white">
+    <span class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-blue-500">📁 Projet</span>
+    <span class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500">📋 Activité</span>
+    <span class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-500">✅ Tâche</span>
+    <span class="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gray-400 dark:bg-gray-600">
+      ⬛ Terminé / Annulé
+    </span>
+  </div>
+
+  <!-- Calendrier -->
+  <div #calendarWrapper
+       class="rounded-xl sm:rounded-2xl shadow border border-gray-200 dark:border-gray-700
+              bg-white dark:bg-gray-800 p-2 sm:p-4 w-full">
+    <full-calendar #fullcalendar [options]="calendarOptions" />
+  </div>
+
+</div>

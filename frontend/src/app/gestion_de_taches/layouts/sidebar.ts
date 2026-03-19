@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { SidebarService } from '../services/SidebarService';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -17,6 +17,13 @@ import { AuthService } from '../services/AuthService';
 export class Sidebar implements OnInit, OnDestroy {
   sidebarService = inject(SidebarService);
   authService = inject(AuthService);
+  cdr=inject(ChangeDetectorRef)
+  onAvatarError(event: Event): void {
+  if (this.user) {
+    this.user = { ...this.user, profilePictureLink: '' };
+  }
+}
+
 
   user: User | null = null;
   private userSub: Subscription | null = null;
@@ -28,6 +35,7 @@ export class Sidebar implements OnInit, OnDestroy {
       {
       this.sidebarService.open()
       }
+      this.cdr.detectChanges()
     });
   }
 

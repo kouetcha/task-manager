@@ -1,0 +1,37 @@
+@media (max-width: 640px) {
+
+  ::ng-deep .mat-mdc-paginator-page-size {
+    display: none !important;
+  }
+
+  ::ng-deep .mat-mdc-paginator-container {
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    padding: 0 4px !important;
+    min-height: 48px !important;
+  }
+
+  /* C'est ici le vrai fix : empêcher le range-actions de se wrap */
+  ::ng-deep .mat-mdc-paginator-range-actions {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+
+  ::ng-deep .mat-mdc-paginator-range-label {
+    font-size: 12px !important;
+    margin: 0 6px !important;
+    white-space: nowrap !important;   /* <- empêche le texte de se couper */
+    min-width: fit-content !important;
+  }
+
+  ::ng-deep .mat-mdc-paginator-navigation-first,
+  ::ng-deep .mat-mdc-paginator-navigation-previous,
+  ::ng-deep .mat-mdc-paginator-navigation-next,
+  ::ng-deep .mat-mdc-paginator-navigation-last {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+  }
+}

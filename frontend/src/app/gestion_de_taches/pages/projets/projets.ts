@@ -91,10 +91,11 @@ export class Projets implements OnInit {
           );
           return of({
             content: [],
-            totalElements: 0,
+            page:
+            {totalElements: 0,
             totalPages: 0,
             number: 0,
-            size: this.pageSize,
+            size: this.pageSize},
             first: true,
             last: true,
           } as Page<Projet>);
@@ -105,11 +106,18 @@ export class Projets implements OnInit {
         })
       )
       .subscribe((pageResult) => {
+        
+  
         this.projets = pageResult.content;
-        this.totalElements = pageResult.totalElements;
-        this.totalPages = pageResult.totalPages;
-        this.currentPage = pageResult.number;
+        this.totalElements = pageResult.page.totalElements;
+        this.totalPages = pageResult.page.totalPages;
+        this.currentPage = pageResult.page.number;
         this.filterProjets();
+        this.cdr.detectChanges();
+        console.log("pageResult")
+        console.log(pageResult)
+        console.log("this.totalElements")     
+        console.log(this.totalElements)
       });
   }
 

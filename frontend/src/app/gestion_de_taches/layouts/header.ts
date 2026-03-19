@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,6 +6,7 @@ import { SidebarService } from '../services/SidebarService';
 import { AuthService } from '../services/AuthService';
 import { ThemeMode, ThemeService } from '../services/ThemeService';
 import { User } from '../models/user';
+import { Subscription } from 'rxjs';
 
 
 
@@ -17,17 +18,25 @@ import { User } from '../models/user';
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class Header  implements OnInit{
+export class Header  implements OnInit , OnDestroy{
    user:User|null=null;
+    private userSubscription: Subscription = new Subscription();
   ngOnInit(): void {
-   this.authService.user$.subscribe((user)=>{
+  this.userSubscription = this.authService.user$.subscribe((user)=>{
       this.user = user;
+      this.cdr.detectChanges()
    })
+  }
+   ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
   sidebarService = inject(SidebarService);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
-  router=inject(Router)
+  router=inject(Router);
+  cdr=inject(ChangeDetectorRef)
 
 
   isUserMenuOpen = false;
@@ -59,7 +68,11 @@ export class Header  implements OnInit{
       this.isThemeMenuOpen = false;
     }
   }
-
+onAvatarError(event: Event): void {
+  if (this.user) {
+    this.user = { ...this.user, profilePictureLink: '' };
+  }
+}
   logout() {
     // Implémentez votre logique de déconnexion
     console.log('Déconnexion');

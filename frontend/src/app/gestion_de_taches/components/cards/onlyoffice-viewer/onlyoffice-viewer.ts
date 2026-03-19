@@ -91,7 +91,7 @@ export class OnlyOfficeViewer implements OnInit, OnChanges, OnDestroy {
         id: this.fileInfo.id || 0,
         nomFichier: this.fileInfo.nomFichier,
         url: this.fileInfo.url,
-        type: this.getFileTypeFromName(this.fileInfo.type),
+        type: this.fileInfo.type,
         callbackurl:this.fileInfo.callbackurl
       };
 

@@ -101,10 +101,10 @@ export class Taches implements OnInit {
           );
           return of({
             content: [],
-            totalElements: 0,
+            page:{totalElements: 0,
             totalPages: 0,
             number: 0,
-            size: this.pageSize,
+            size: this.pageSize},
             first: true,
             last: true
           } as Page<Tache>);
@@ -116,9 +116,9 @@ export class Taches implements OnInit {
       )
       .subscribe((pageResult) => {
         this.taches = pageResult.content;
-        this.totalElements = pageResult.totalElements;
-        this.totalPages = pageResult.totalPages;
-        this.currentPage = pageResult.number;
+        this.totalElements = pageResult.page.totalElements;
+        this.totalPages = pageResult.page.totalPages;
+        this.currentPage = pageResult.page.number;
         this.filterTaches();
       });
   }

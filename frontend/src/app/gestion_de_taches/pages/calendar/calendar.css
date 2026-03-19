@@ -1,0 +1,306 @@
+/* calendar.css */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Le wrapper du calendrier */
+#calendarWrapper {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Correction pour FullCalendar */
+::ng-deep .fc {
+  max-width: 100%;
+}
+
+::ng-deep .fc-view-harness {
+  height: auto !important;
+  min-height: 500px;
+  width: 100% !important;
+  overflow: visible !important;
+}
+
+/* Forcer la grille à rester dans le conteneur */
+::ng-deep .fc-scrollgrid {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+::ng-deep .fc-daygrid-body,
+::ng-deep .fc-timegrid-body {
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* ── Filtres ── */
+.filter-projet   { border-color: #3B82F6; color: #3B82F6; }
+.filter-activite { border-color: #10B981; color: #10B981; }
+.filter-tache    { border-color: #F59E0B; color: #F59E0B; }
+.filter-tous     { border-color: #6B7280; color: #6B7280; }
+
+.filter-projet.active   { background: #3B82F6; color: white; }
+.filter-activite.active { background: #10B981; color: white; }
+.filter-tache.active    { background: #F59E0B; color: white; }
+.filter-tous.active     { background: #6B7280; color: white; }
+
+/* ── FullCalendar dark mode ── */
+:host-context(.dark) ::ng-deep .fc {
+  --fc-border-color:              #4B5563;
+  --fc-today-bg-color:            rgba(99, 102, 241, 0.2);
+  --fc-neutral-bg-color:          #1F2937;
+  --fc-neutral-text-color:        #F9FAFB;
+  --fc-page-bg-color:             #1F2937;
+  --fc-list-event-hover-bg-color: #374151;
+}
+
+/* Tous les textes visibles du calendrier */
+:host-context(.dark) ::ng-deep .fc-toolbar-title,
+:host-context(.dark) ::ng-deep .fc-col-header-cell-cushion,
+:host-context(.dark) ::ng-deep .fc-daygrid-day-number,
+:host-context(.dark) ::ng-deep .fc-daygrid-week-number,
+:host-context(.dark) ::ng-deep .fc-timegrid-slot-label-cushion,
+:host-context(.dark) ::ng-deep .fc-timegrid-axis-cushion,
+:host-context(.dark) ::ng-deep .fc-list-day-text,
+:host-context(.dark) ::ng-deep .fc-list-day-side-text,
+:host-context(.dark) ::ng-deep .fc-list-event-title a,
+:host-context(.dark) ::ng-deep .fc-list-event-time {
+  color: #F9FAFB;
+}
+
+/* Fond des cellules jours */
+:host-context(.dark) ::ng-deep .fc-daygrid-day,
+:host-context(.dark) ::ng-deep .fc-timegrid-slot,
+:host-context(.dark) ::ng-deep .fc-timegrid-col {
+  background-color: #1F2937;
+}
+
+/* Jour "aujourd'hui" */
+:host-context(.dark) ::ng-deep .fc-day-today {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Jours hors du mois courant (grisés) */
+:host-context(.dark) ::ng-deep .fc-day-other .fc-daygrid-day-number {
+  color: #6B7280;
+}
+
+/* Header des colonnes (Lun, Mar...) */
+:host-context(.dark) ::ng-deep .fc-col-header-cell {
+  background-color: #111827;
+  border-color:     #4B5563;
+}
+
+/* Fond de la vue liste */
+:host-context(.dark) ::ng-deep .fc-list,
+:host-context(.dark) ::ng-deep .fc-list-day-cushion {
+  background-color: #1F2937;
+  border-color:     #4B5563;
+}
+
+/* Séparateur de jours dans la vue liste */
+:host-context(.dark) ::ng-deep .fc-list-day-cushion {
+  background-color: #111827;
+}
+
+/* Boutons toolbar */
+:host-context(.dark) ::ng-deep .fc-button {
+  background-color: #374151;
+  border-color:     #4B5563;
+  color:            #F9FAFB;
+}
+
+:host-context(.dark) ::ng-deep .fc-button:hover {
+  background-color: #4B5563;
+  border-color:     #6B7280;
+}
+
+:host-context(.dark) ::ng-deep .fc-button-active,
+:host-context(.dark) ::ng-deep .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #4F46E5 !important;
+  border-color:     #4F46E5 !important;
+}
+
+/* Toutes les bordures de la grille */
+:host-context(.dark) ::ng-deep .fc-scrollgrid,
+:host-context(.dark) ::ng-deep .fc-scrollgrid td,
+:host-context(.dark) ::ng-deep .fc-scrollgrid th {
+  border-color: #4B5563 !important;
+}
+
+/* ── Responsive avec réduction de police ── */
+@media (max-width: 640px) {
+  /* Container */
+  #calendarWrapper {
+    padding: 0.25rem !important;
+    overflow: visible !important;
+  }
+  
+  /* Réduction générale de la taille de police */
+  ::ng-deep .fc {
+    font-size: 11px !important;
+  }
+  
+  /* Ajuster la toolbar pour mobile */
+  ::ng-deep .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  ::ng-deep .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+  
+  ::ng-deep .fc-toolbar-title {
+    font-size: 0.9rem !important;
+    margin: 0 0.25rem !important;
+  }
+  
+  /* Boutons plus compacts */
+  ::ng-deep .fc-button {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.7rem !important;
+  }
+  
+  /* En-têtes des colonnes */
+  ::ng-deep .fc-col-header-cell-cushion {
+    font-size: 0.7rem !important;
+    padding: 2px !important;
+  }
+  
+  /* Numéros des jours */
+  ::ng-deep .fc-daygrid-day-number {
+    font-size: 0.65rem !important;
+    padding: 1px 2px !important;
+  }
+  
+  /* Événements dans la vue mois */
+  ::ng-deep .fc-daygrid-day-events {
+    min-height: auto !important;
+  }
+  
+  ::ng-deep .fc-event {
+    margin: 1px 0 !important;
+    padding: 1px 2px !important;
+    border-radius: 2px !important;
+  }
+  
+  ::ng-deep .fc-event-title {
+    font-size: 0.6rem !important;
+    font-weight: normal !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Lien "more" */
+  ::ng-deep .fc-daygrid-more-link {
+    font-size: 0.6rem !important;
+    padding: 0 2px !important;
+  }
+  
+  /* Vue semaine */
+  ::ng-deep .fc-timegrid-slot-label-cushion {
+    font-size: 0.65rem !important;
+  }
+  
+  /* Vue liste */
+  ::ng-deep .fc-list-day-text,
+  ::ng-deep .fc-list-day-side-text,
+  ::ng-deep .fc-list-event-title,
+  ::ng-deep .fc-list-event-time {
+    font-size: 0.7rem !important;
+  }
+  
+  ::ng-deep .fc-list-event {
+    padding: 4px !important;
+  }
+  
+  /* Légende plus compacte */
+  .legend span {
+    padding: 0.15rem 0.3rem !important;
+    font-size: 0.6rem !important;
+  }
+}
+
+/* Pour très petits écrans */
+@media (max-width: 480px) {
+  ::ng-deep .fc {
+    font-size: 10px !important;
+  }
+  
+  ::ng-deep .fc-toolbar-title {
+    font-size: 0.8rem !important;
+  }
+  
+  ::ng-deep .fc-button {
+    padding: 0.15rem 0.3rem !important;
+    font-size: 0.65rem !important;
+  }
+  
+  ::ng-deep .fc-col-header-cell-cushion {
+    font-size: 0.6rem !important;
+  }
+  
+  ::ng-deep .fc-daygrid-day-number {
+    font-size: 0.6rem !important;
+  }
+  
+  ::ng-deep .fc-event-title {
+    font-size: 0.55rem !important;
+  }
+  
+  /* Masquer les textes des filtres, garder seulement les icônes */
+  .filter-projet span:not(.hidden),
+  .filter-activite span:not(.hidden),
+  .filter-tache span:not(.hidden),
+  .filter-tous span:not(.hidden) {
+    display: none;
+  }
+  
+  /* Ajuster les boutons de filtre */
+  .filter-projet, .filter-activite, .filter-tache, .filter-tous {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Légende encore plus compacte */
+  .legend span {
+    padding: 0.1rem 0.2rem !important;
+    font-size: 0.5rem !important;
+  }
+}
+
+/* Pour les écrans très étroits */
+@media (max-width: 360px) {
+  ::ng-deep .fc-daygrid-day-number {
+    font-size: 0.55rem !important;
+  }
+  
+  ::ng-deep .fc-event-title {
+    font-size: 0.5rem !important;
+  }
+  
+  ::ng-deep .fc-daygrid-more-link {
+    font-size: 0.5rem !important;
+  }
+}
+
+/* Style pour la classe mobile-view */
+:host-context(.mobile-view) #calendarWrapper {
+  padding: 0.25rem;
+}
+
+:host-context(.mobile-view) ::ng-deep .fc-view-harness {
+  overflow: visible !important;
+  min-height: 400px;
+}
+
+:host-context(.mobile-view) ::ng-deep .fc-scrollgrid,
+:host-context(.mobile-view) ::ng-deep .fc-daygrid-body {
+  min-width: 100% !important;
+}

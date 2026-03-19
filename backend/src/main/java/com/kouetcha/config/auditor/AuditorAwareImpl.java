@@ -1,5 +1,6 @@
 package com.kouetcha.config.auditor;
 
+import com.kouetcha.model.utilisateur.Utilisateur;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -25,6 +26,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         if (username == null) {
             if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
                 username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
                 UserContext.setCurrentUser(username);
             }
         }

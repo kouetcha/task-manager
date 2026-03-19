@@ -1,6 +1,8 @@
 package com.kouetcha.repository.tasksmanager;
 
 import com.kouetcha.dto.tasksmanager.BaseEntityDto;
+import com.kouetcha.dto.tasksmanager.DashboardItemDto;
+import com.kouetcha.dto.tasksmanager.StatsProjection;
 import com.kouetcha.model.tasksmanager.Activite;
 import com.kouetcha.model.tasksmanager.Projet;
 import com.kouetcha.model.utilisateur.Utilisateur;
@@ -89,9 +91,42 @@ public interface ActiviteRepository extends JpaRepository<Activite, Long> {
     """)
     long countActiveByEmail(@Param("email") String email);
 
-    
+
     Page<Activite> findDistinctByEmailsEmailIgnoreCaseAndEmailsActiveIsTrueOrCreateurEmail(String email, String email1, Pageable pageable);
 
 
     List<Activite> findByProjetIdAndEmailsEmailIgnoreCaseAndEmailsActiveIsTrueOrProjetIdAndCreateurEmail(Long projetId, String email, Long projetId1, String email1);
+
+
+    // ActiviteRepository
+    @Query(value = """
+    SELECT 
+        COUNT(a.id)                                                AS total,
+        SUM(CASE WHEN a.status = 'EN_COURS'   THEN 1 ELSE 0 END) AS enCours,
+        SUM(CASE WHEN a.status = 'TERMINE'    THEN 1 ELSE 0 END) AS termines,
+        SUM(CASE WHEN a.status = 'EN_ATTENTE' THEN 1 ELSE 0 END) AS enAttente,
+        SUM(CASE WHEN a.status = 'ANNULE'     THEN 1 ELSE 0 END) AS annules
+    FROM tasksmanager_activite a
+    WHERE a.createur_id = :userId
+    """, nativeQuery = true)
+    StatsProjection getStatsActivites(@Param("userId") Long userId);
+
+    @Query(value = """
+    SELECT 
+        a.id,
+        a.designation,
+        a.status,
+        a.date_fin          AS dateFin,
+        a.date_modification AS dateModification,
+        'ACTIVITE'          AS type,
+        a.projet_id         AS projetId,
+        a.id                AS activiteId
+    FROM tasksmanager_activite a
+    WHERE a.createur_id = :userId
+      AND a.date_fin < CURRENT_DATE
+      AND a.status != 'TERMINE'
+      AND a.status != 'ANNULE'
+    ORDER BY a.date_fin ASC
+    """, nativeQuery = true)
+    List<Object[]> findActivitesEnRetard(@Param("userId") Long userId);
 }

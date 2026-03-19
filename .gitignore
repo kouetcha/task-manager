@@ -2,16 +2,20 @@
 # SECRETS — NE JAMAIS COMMITER
 # ===============================
 .env
+.gitignore
 backend/src/main/resources/application.properties
 
 # ===============================
 # BACKEND (Spring Boot / Maven)
 # ===============================
-backend/target/
+backend/target
 backend/.mvn/wrapper/maven-wrapper.jar
 backend/*.class
 backend/*.jar
 backend/*.war
+backend/.gitignore
+backend/.dockerignore
+
 
 # ===============================
 # FRONTEND (Angular / Node)
@@ -20,6 +24,8 @@ frontend/node_modules/
 frontend/dist/
 frontend/.angular/
 frontend/*.js.map
+frontend/.gitignore
+frontend/.dockerignore
 
 # ===============================
 # MEDIA / UPLOADS
@@ -36,6 +42,7 @@ backend/media/
 *.ntvs*
 *.njsproj
 *.sln
+
 
 # ===============================
 # OS

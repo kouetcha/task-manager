@@ -1,6 +1,8 @@
 package com.kouetcha.repository.tasksmanager;
 
 import com.kouetcha.dto.tasksmanager.BaseEntityDto;
+import com.kouetcha.dto.tasksmanager.DashboardItemDto;
+import com.kouetcha.dto.tasksmanager.StatsProjection;
 import com.kouetcha.model.tasksmanager.Activite;
 import com.kouetcha.model.tasksmanager.Tache;
 import com.kouetcha.model.utilisateur.Utilisateur;
@@ -91,4 +93,37 @@ public interface TacheRepository extends JpaRepository<Tache, Long> {
 
 
     List<Tache> findByActiviteIdAndEmailsEmailIgnoreCaseAndEmailsActiveIsTrueOrActiviteIdAndCreateurEmail(Long activiteId, String email, Long activiteId1, String email1);
+
+
+    @Query(value = """
+    SELECT 
+        COUNT(t.id)                                                AS total,
+        SUM(CASE WHEN t.status = 'EN_COURS'   THEN 1 ELSE 0 END) AS enCours,
+        SUM(CASE WHEN t.status = 'TERMINE'    THEN 1 ELSE 0 END) AS termines,
+        SUM(CASE WHEN t.status = 'EN_ATTENTE' THEN 1 ELSE 0 END) AS enAttente,
+        SUM(CASE WHEN t.status = 'ANNULE'     THEN 1 ELSE 0 END) AS annules
+    FROM tasksmanager_tache t
+    WHERE t.createur_id = :userId
+    """, nativeQuery = true)
+    StatsProjection getStatsTaches(@Param("userId") Long userId);
+
+    @Query(value = """
+    SELECT 
+        t.id,
+        t.designation,
+        t.status,
+        t.date_debut        As dateDebut,
+        t.date_fin          AS dateFin,
+        t.date_modification AS dateModification,
+        'TACHE'             AS type,
+         NULL         AS projetId,
+        t.activite_id       AS activiteId
+    FROM tasksmanager_tache t
+    WHERE t.createur_id = :userId
+      AND t.date_fin < CURRENT_DATE
+      AND t.status != 'TERMINE'
+      AND t.status != 'ANNULE'
+    ORDER BY t.date_fin ASC
+    """, nativeQuery = true)
+    List<Object[]> findTachesEnRetard(@Param("userId") Long userId);
 }

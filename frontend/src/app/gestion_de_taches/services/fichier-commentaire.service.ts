@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Commentaire, ELEMENTTYPE, FichierInfo } from '../interfaces/base-entity-gestion';
-import { environment } from '../../../environments/environment';
+
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 export interface FichierCommentaire {
   id: number;
   nomFichier: string;
