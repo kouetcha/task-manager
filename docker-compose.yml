@@ -63,11 +63,11 @@ services:
       - SPRING_DATA_REDIS_PORT=6379
       - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
       - SPRING_CACHE_TYPE=redis
-      - SPRING_CACHE_REDIS_TIME_TO_LIVE=600000
-      - SPRING_CACHE_REDIS_KEY_PREFIX="tasksmanager::"
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=200MB
-      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=200MB
+      - SPRING_CACHE_REDIS_TIME_TO_LIVE=${CACHE_TTL:-600000}
+      - SPRING_CACHE_REDIS_KEY_PREFIX=${CACHE_KEY_PREFIX:-tasksmanager::}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${JPA_DDL_AUTO:-update}
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=${MAX_FILE_SIZE:-200MB}
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=${MAX_REQUEST_SIZE:-200MB}
       - SPRING_MVC_PATHMATCH_MATCHING_STRATEGY=ant-path-matcher
       - KOUETCHA_APP_JWTSECRET=${JWT_SECRET}
       - KOUETCHA_APP_JWTEXPIRATIONMS=${JWT_EXPIRATION_MS:-86400000}
@@ -75,13 +75,13 @@ services:
       - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - MEDIA_DOCUMENT_TACHE=./media/document/tache/
-      - MEDIA_DOCUMENT_ACTIVITE=./media/document/activite/
-      - MEDIA_DOCUMENT_PROJET=./media/document/projet/
-      - MEDIA_COMMENTAIRE_TACHE=./media/commentaire/tache/
-      - MEDIA_COMMENTAIRE_ACTIVITE=./media/commentaire/activite/
-      - MEDIA_COMMENTAIRE_PROJET=./media/commentaire/projet/
-      - MEDIA_USER_PROFIL=./media/userProfil/
+      - MEDIA_DOCUMENT_TACHE=${MEDIA_DOC_TACHE:-./media/document/tache/}
+      - MEDIA_DOCUMENT_ACTIVITE=${MEDIA_DOC_ACTIVITE:-./media/document/activite/}
+      - MEDIA_DOCUMENT_PROJET=${MEDIA_DOC_PROJET:-./media/document/projet/}
+      - MEDIA_COMMENTAIRE_TACHE=${MEDIA_COM_TACHE:-./media/commentaire/tache/}
+      - MEDIA_COMMENTAIRE_ACTIVITE=${MEDIA_COM_ACTIVITE:-./media/commentaire/activite/}
+      - MEDIA_COMMENTAIRE_PROJET=${MEDIA_COM_PROJET:-./media/commentaire/projet/}
+      - MEDIA_USER_PROFIL=${MEDIA_USER_PROFIL:-./media/userProfil/}
     volumes:
       - media_data:/app/media
     depends_on:
@@ -101,13 +101,18 @@ services:
       dockerfile: Dockerfile
       args:
         - API_URL=${API_URL:-http://localhost:9060}
-        - ONLY_OFFICE_URL=${ONLYOFFICE_URL:-http://localhost:8080}
+        - ONLYOFFICE_URL=${ONLYOFFICE_URL:-/onlyoffice}
+        - INTERNAL_API_URL=${INTERNAL_API_URL:-http://tasksmanager-backend:9000/tasksmanager}
     container_name: tasksmanager-frontend
     restart: unless-stopped
     ports:
       - "4400:80"
     environment:
-      - BACKEND_URL=${BACKEND_URL:-http://backend:9000}  
+      - BACKEND_URL=${BACKEND_URL:-http://backend:9000}
+      - ONLYOFFICE_URL=${ONLYOFFICE_NGINX_URL:-http://onlyoffice:80}
+      - ONLYOFFICE_INSTALL=${ONLYOFFICE_INSTALL:-false}
+      - FRONTEND_PORT=${FRONTEND_PORT:-4400} 
+      - INTERNAL_API_URL=${INTERNAL_API_URL:-http://tasksmanager-backend:9000/tasksmanager}
     depends_on:
       - backend
     networks:
@@ -126,6 +131,7 @@ services:
       - "8070:80"
     environment:
       - JWT_ENABLED=false
+      - ALLOW_PRIVATE_IP_ADDRESS=true
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
       - onlyoffice_logs:/var/log/onlyoffice

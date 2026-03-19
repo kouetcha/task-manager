@@ -8,4 +8,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .main-content {
   padding-top: 40px; /* Hauteur de ta navbar (h-16 = 4rem = 64px) */
 }
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
 

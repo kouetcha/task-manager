@@ -47,11 +47,11 @@ export class UserService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
   // 🔹 PATCH /utilisateur/{id}/profil-picture - Upload photo de profil
-  uploadProfilePicture(id: number, file: File): Observable<{ imageUrl: string }> {
+  uploadProfilePicture(id: number, file: File): Observable<User> {
     const formData = new FormData();
     formData.append('image', file);
     
-    return this.http.patch<{ imageUrl: string }>(
+    return this.http.patch<User>(
       `${this.API_URL}/${id}/profil-picture`,
       formData
     );

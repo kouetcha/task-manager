@@ -1,4 +1,7 @@
 package com.kouetcha.model.enums;
 
-public class TYPE {
+public enum Type {
+    PROJET,
+    ACTIVITE,
+    TACHE
 }

@@ -1,6 +1,8 @@
 package com.kouetcha.security.jwt;
 
 import com.kouetcha.config.auditor.UserContext;
+import com.kouetcha.model.utilisateur.Utilisateur;
+import com.kouetcha.repository.utilisateur.UtilisateurRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +24,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
@@ -38,6 +42,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtUtils.getAuthentication(jwt);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 UserContext.setCurrentUser(username);
+                System.out.println("Utilisateur Email::"+username);
+                Utilisateur utilisateur=utilisateurRepository.findByEmail(username).get();
+                UserContext.setUtilisaeurConnecte(utilisateur);
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -134,7 +135,8 @@ public class UtilisateurServiceImpl implements UtilisateurService{
 
             // Générer le token JWT
             String token = jwtUtils.generateToken(utilisateur);
-
+           utilisateur.setDernierConnexion(new Date());
+           utilisateurRepository.save(utilisateur);
             return new AuthentificationDto(dto.getEmail(), token);
 
         } catch (Exception ex) {

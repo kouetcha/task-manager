@@ -2,10 +2,11 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable, Subject, fromEvent, merge } from 'rxjs';
 import { map, filter, distinctUntilChanged } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
+
 import { AuthService } from '../AuthService';
 import { EditorMode, getFileType, OnlyOfficeConfig, OnlyOfficeCustomization } from '../../models/document.model';
 import { FichierInfo } from '../../interfaces/base-entity-gestion';
+import { environment } from '../../../../environments/environment';
 
 
 
@@ -200,10 +201,10 @@ export class OnlyOfficeService {
    */
   private handleOnlyOfficeMessage(event: MessageEvent): void {
     // Vérifier l'origine du message
-    if (event.origin !== this.documentServerUrl) {
-      return;
-    }
-
+  const serverOrigin = new URL(this.documentServerUrl).origin; // 'http://192.168.190.159:4400'
+  if (event.origin !== serverOrigin) {
+    return;
+  }
     try {
       const data = event.data;
       
@@ -415,7 +416,7 @@ createConfig(
     editorConfig: {
       mode: editorMode,
       lang: 'fr',
-      callbackUrl: `${document.callbackurl}`,
+      callbackUrl: `${doc.callbackurl}`,
       customization: defaultCustomization,
       user: {
         id: `user-${userId}`,
@@ -478,6 +479,14 @@ createConfig(
   };
 
   console.log('✅ Configuration ONLYOFFICE créée avec succès');
+  console.log('🔴 CONFIG FINALE ONLYOFFICE:', JSON.stringify({
+  documentType: config.documentType,
+  fileType: config.document.fileType,
+  docUrl: config.document.url,
+  callbackUrl: config.editorConfig.callbackUrl,
+  doc_type_input: doc.type
+}, null, 2));
+  console.log(config);
   return config;
 }
   /**
@@ -718,23 +727,29 @@ createConfig(
   /**
    * Mappe le type de document vers ONLYOFFICE
    */
-  private mapDocumentType(type: string): string {
-    switch (type.toLowerCase()) {
-      case 'word':
-      case 'text':
-        return 'text';
-      case 'cell':
-      case 'spreadsheet':
-        return 'spreadsheet';
-      case 'slide':
-      case 'presentation':
-        return 'presentation';
-      case 'pdf':
-        return 'pdf';
-      default:
-        return 'text';
+    private mapDocumentType(type: string): string {
+      switch (type.toLowerCase()) {
+        case 'word':
+        case 'text':
+        case 'doc':
+        case 'docx':
+          return 'word';         // ✅
+        case 'cell':
+        case 'spreadsheet':
+        case 'xls':
+        case 'xlsx':
+          return 'cell';         // ✅
+        case 'slide':
+        case 'presentation':
+        case 'ppt':
+        case 'pptx':
+          return 'slide';        // ✅
+        case 'pdf':
+          return 'pdf';
+        default:
+          return 'word';
+      }
     }
-  }
 
   // ========== MÉTHODES DE DÉBOGAGE ==========
 

@@ -1,8 +1,7 @@
-<!-- Bouton flottant de navigation (FAB) - visible uniquement si le projet est chargé -->
+<!-- Bouton flottant de navigation (FAB) -->
 @if (projet) {
   <button
     mat-fab
-    
     class="!fixed bottom-[15rem] right-[0.1rem] z-[9] bg-indigo-600 text-white shadow-lg hover:bg-indigo-700"
     [matMenuTriggerFor]="navMenu"
     aria-label="Navigation rapide"
@@ -11,8 +10,7 @@
     <mat-icon>menu_book</mat-icon>
   </button>
 
-  <!-- Menu contextuel -->
-  <mat-menu #navMenu="matMenu" class="nav-menu">
+  <mat-menu #navMenu="matMenu">
     <ng-template matMenuContent>
       <button mat-menu-item (click)="scrollTo('section-projet')">
         <mat-icon>info</mat-icon>
@@ -32,43 +30,46 @@
   </mat-menu>
 }
 
-<!-- Bouton retour en haut (apparaît après défilement) -->
+<!-- Bouton retour en haut -->
 @if (showScrollTop) {
   <button
     (click)="scrollToTop()"
-    class="fixed bottom-6 right-6 z-50 p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-opacity"
+    class="fixed bottom-6 right-6 z-50 p-2.5 sm:p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-opacity"
     aria-label="Retour en haut">
     <mat-icon>arrow_upward</mat-icon>
   </button>
 }
 
-<!-- Conteneur principal -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<!-- Conteneur principal : px réduit sur mobile -->
+<div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-6">
+
   <!-- En-tête -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-4 sm:mb-6 gap-2">
     <button
       (click)="goBack()"
-      class="flex items-center text-indigo-600 dark:text-indigo-400 hover:underline">
-      <mat-icon>arrow_back</mat-icon>
-      <span class="ml-1">Retour aux projets</span>
+      class="flex items-center text-indigo-600 dark:text-indigo-400 hover:underline flex-shrink-0">
+      <mat-icon class="text-base" style="font-size:20px;width:20px;height:20px;">arrow_back</mat-icon>
+      <span class="ml-1 text-sm sm:text-base hidden xs:inline">Retour aux projets</span>
     </button>
 
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+    <h1 class="text-base sm:text-2xl font-bold text-gray-900 dark:text-white truncate text-center flex-1 min-w-0">
       {{ projet?.designation || 'Projet' }}
     </h1>
 
-    <div class="w-10"></div>
+    <!-- Espace équilibrant le bouton retour -->
+    <div class="w-6 sm:w-10 flex-shrink-0"></div>
   </div>
 
   <!-- Contenu principal -->
   @if (projet) {
+
     <!-- Section Détails -->
-    <section id="section-projet" class="scroll-mt-20 mb-10">
+    <section id="section-projet" class="scroll-mt-16 sm:scroll-mt-20 mb-4 sm:mb-10">
       <app-projet-card-detail
         (editableChamps)="onApplieELementChange($event)"
         [projet]="projet"
         [currentUserId]="getUser()?.id || 0"
-        [currentUserProfilePicture]="(getUser() )?.profilePictureLink || ''"
+        [currentUserProfilePicture]="getUser()?.profilePictureLink || ''"
         (viewFile)="onViewFile($event)"
         (deleteFile)="onDeleteFile($event, 'projet', projet.id)"
         (ajoutFichiers)="onAddFiles(projet, $event)">
@@ -76,18 +77,18 @@
     </section>
 
     <!-- Section Activités -->
-    <section id="section-activites" class="scroll-mt-20 mb-10">
-      <div class="flex items-center gap-2 mb-4">
-        <mat-icon class="text-indigo-600">list_alt</mat-icon>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Activités</h2>
+    <section id="section-activites" class="scroll-mt-16 sm:scroll-mt-20 mb-4 sm:mb-10">
+      <div class="flex items-center gap-2 mb-2 sm:mb-4">
+        <mat-icon class="text-indigo-600 text-base" style="font-size:20px;width:20px;height:20px;">list_alt</mat-icon>
+        <h2 class="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">Activités</h2>
       </div>
       <app-activite-section
         [projetId]="projetId"
         (viewFile)="onViewFile($event)"
         (activiteSelected)="onActiviteSelected($event)"
-        [currentUserId]="(getUser() )?.id || 0"
-        [currentUserEmail]="getUser()?.email||''"
-        [currentUserProfilePicture]="(getUser())?.profilePictureLink || ''"
+        [currentUserId]="getUser()?.id || 0"
+        [currentUserEmail]="getUser()?.email || ''"
+        [currentUserProfilePicture]="getUser()?.profilePictureLink || ''"
         (activiteSelectedDelete)="onActiviteSelectedDelete($event)"
         (deleteFile)="onDeleteFile($event.file, 'activite', $event.id)">
       </app-activite-section>
@@ -95,11 +96,11 @@
 
     <!-- Section Tâches (conditionnelle) -->
     @if (activiteSelected) {
-      <section id="section-taches" class="scroll-mt-20 mb-10">
-        <div class="flex items-center gap-2 mb-4">
-          <mat-icon class="text-indigo-600">checklist</mat-icon>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Tâches de l'activité : {{ activiteSelected.designation }}
+      <section id="section-taches" class="scroll-mt-16 sm:scroll-mt-20 mb-4 sm:mb-10">
+        <div class="flex items-center gap-2 mb-2 sm:mb-4 min-w-0">
+          <mat-icon class="text-indigo-600 flex-shrink-0 text-base" style="font-size:20px;width:20px;height:20px;">checklist</mat-icon>
+          <h2 class="text-sm sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
+            Tâches : {{ activiteSelected.designation }}
           </h2>
         </div>
         <app-tache-section
@@ -107,15 +108,15 @@
           [activiteId]="activiteSelected.id"
           (tacheSelected)="onTacheSelected($event)"
           (tacheSelectedDelete)="onTacheSelectedDelete($event)"
-          [currentUserId]="(getUser())?.id || 0"
-           [currentUserEmail]="getUser()?.email||''"
+          [currentUserId]="getUser()?.id || 0"
+          [currentUserEmail]="getUser()?.email || ''"
           (viewFile)="onViewFile($event)"
           (deleteFile)="onDeleteFile($event.file, 'tache', $event.id)">
         </app-tache-section>
       </section>
     }
+
   } @else {
-    <!-- Chargement -->
     <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
   }
 </div>

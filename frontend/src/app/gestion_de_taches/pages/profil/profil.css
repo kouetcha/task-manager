@@ -1,0 +1,89 @@
+
+/* Animation pour le modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Style pour l'avatar interactif */
+.group {
+  cursor: pointer;
+}
+
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+/* Overlay de la loupe */
+.group .absolute.inset-0 {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+/* Style du modal */
+.fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  touch-action: none; /* Empêche le scroll du fond */
+}
+
+/* Support du dark mode pour le modal */
+:host-context(.dark) .fixed {
+  background-color: rgba(0, 0, 0, 0.95);
+}
+
+/* Améliorations mobile */
+@media (max-width: 640px) {
+  .group:active {
+    transform: scale(0.98);
+  }
+  
+  .fixed img {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Zone de clic plus grande sur mobile */
+  .fixed button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Indicateur "tap pour voir en grand" plus visible */
+  .group:hover .opacity-0 {
+    opacity: 1;
+  }
+}
+
+/* Pour très petits écrans */
+@media (max-width: 380px) {
+  .fixed .max-w-3xl {
+    padding: 0.5rem;
+  }
+  
+  .fixed button {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+/* Support du notch et safe areas */
+@supports (padding: max(0px)) {
+  .fixed {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
