@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DashboardDto } from '../models/dashboard.model';
+import { DashboardDto, MenuStats } from '../models/dashboard.model';
 
 
 @Injectable({ providedIn: 'root' })
@@ -14,10 +14,22 @@ export class DashboardService {
   constructor(private http: HttpClient) {}
 
   getDashboard(): Observable<DashboardDto> {
-    // userId géré côté backend via le token JWT — pas besoin de le passer
     return this.http.get<DashboardDto>(this.url+"/dashboard").pipe(
       catchError(() => of(this.emptyDashboard()))
     );
+  }
+    getMenuStats(): Observable<MenuStats> {
+    
+    return this.http.get<MenuStats>(this.url+"/menu").pipe(
+      catchError(() => of(this.emptyMenu()))
+    );
+  }
+  private emptyMenu():MenuStats{
+    return {
+      nbreProjets:0,
+      nbrActivites:0,
+      nbrTaches:0
+    }
   }
 
   private emptyDashboard(): DashboardDto {

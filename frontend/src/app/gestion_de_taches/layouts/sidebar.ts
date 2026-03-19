@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { User } from '../models/user'; // à définir selon votre modèle
 import { AuthService } from '../services/AuthService';
+import { DashboardService } from '../services/dashboard.service';
+import { MenuStats } from '../models/dashboard.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,6 +20,20 @@ export class Sidebar implements OnInit, OnDestroy {
   sidebarService = inject(SidebarService);
   authService = inject(AuthService);
   cdr=inject(ChangeDetectorRef)
+
+  menuStats: MenuStats={
+    nbreProjets:0,
+    nbrActivites:0,
+    nbrTaches:0
+  }
+
+  constructor(private dashBoardService: DashboardService){
+     this.dashBoardService.getMenuStats().subscribe((menu)=>{
+      this.menuStats=menu
+      this.cdr.detectChanges()
+     })
+  }
+ 
   onAvatarError(event: Event): void {
   if (this.user) {
     this.user = { ...this.user, profilePictureLink: '' };

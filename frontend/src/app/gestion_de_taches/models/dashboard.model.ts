@@ -37,3 +37,8 @@ export interface DashboardDto {
   enRetard: DashboardItem[];
   activiteRecente: DashboardItem[];
 }
+export interface MenuStats{
+    nbreProjets:number;
+    nbrActivites:number;
+    nbrTaches:number;
+}

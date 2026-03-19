@@ -1,6 +1,7 @@
 package com.kouetcha.controller.tasksmanager;
 
 import com.kouetcha.config.auditor.UserContext;
+import com.kouetcha.dto.tasksmanager.CountMenuDto;
 import com.kouetcha.dto.tasksmanager.DashboardDto;
 import com.kouetcha.security.service.UserDetailsImpl;
 import com.kouetcha.service.tasksmanager.StatistiqueService;
@@ -30,5 +31,13 @@ public class StatistiqueController {
         Long userId = UserContext.getUtilisaeurConnecte().getId();
         String userEmail=UserContext.getUtilisaeurConnecte().getEmail();
         return ResponseEntity.ok(service.getDashboard(userId,userEmail));
+    }
+    @GetMapping("/menu")
+    public ResponseEntity<CountMenuDto> getMenu(@AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
+        if(UserContext.getUtilisaeurConnecte()==null){
+            throw new IllegalAccessException("Vous n'avez pas le droit d'acceder à la ressource");
+        }
+        String userEmail=UserContext.getUtilisaeurConnecte().getEmail();
+        return ResponseEntity.ok(service.recupereMenuCount(userEmail));
     }
 }

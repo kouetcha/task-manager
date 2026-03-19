@@ -34,31 +34,59 @@
         <mat-icon class="mr-3">dashboard</mat-icon>
         Tableau de bord
       </a>
+<a routerLink="/app/projets"
+   routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+   class="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+   (click)="onLinkClick()">
+  <div class="flex items-center">
+    <mat-icon class="mr-3">folder</mat-icon>
+    Projets
+  </div>
+  @if (menuStats.nbreProjets > 0) {
+    <span class="ml-auto bg-indigo-500 text-white 
+                 min-w-[1.5rem] h-5 px-1.5 rounded-full 
+                 flex items-center justify-center
+                 text-xs font-bold shadow-sm">
+      {{menuStats.nbreProjets > 99 ? '99+' : menuStats.nbreProjets}}
+    </span>
+  }
+</a>
 
-      <a routerLink="/app/projets"
-         routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
-         class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-         (click)="onLinkClick()">
-        <mat-icon class="mr-3">folder</mat-icon>
-        Projets
-      </a>
+<a routerLink="/app/activites"
+   routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+   class="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+   (click)="onLinkClick()">
+  <div class="flex items-center">
+    <mat-icon class="mr-3">event_note</mat-icon>
+    Activités
+  </div>
+  @if (menuStats.nbrActivites > 0) {
+    <span class="ml-auto bg-emerald-500 text-white 
+                 min-w-[1.5rem] h-5 px-1.5 rounded-full 
+                 flex items-center justify-center
+                 text-xs font-bold shadow-sm">
+      {{menuStats.nbrActivites > 99 ? '99+' : menuStats.nbrActivites}}
+    </span>
+  }
+</a>
 
-      <a routerLink="/app/activites"
-         routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
-         class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-         (click)="onLinkClick()">
-        <mat-icon class="mr-3">event_note</mat-icon>
-        Activités
-      </a>
-
-      <a routerLink="/app/taches"
-         routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
-         class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-         (click)="onLinkClick()">
-        <mat-icon class="mr-3">task_alt</mat-icon>
-        Tâches
-      </a>
-
+<a routerLink="/app/taches"
+   routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+   class="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+   (click)="onLinkClick()">
+  <div class="flex items-center">
+    <mat-icon class="mr-3">task_alt</mat-icon>
+    Tâches
+  </div>
+  @if (menuStats.nbrTaches > 0) {
+    <span class="ml-auto bg-amber-500 text-white 
+                 min-w-[1.5rem] h-5 px-1.5 rounded-full 
+                 flex items-center justify-center
+                 text-xs font-bold shadow-sm">
+      {{menuStats.nbrTaches > 99 ? '99+' : menuStats.nbrTaches}}
+    </span>
+  }
+</a>
    
 
       <a routerLink="/app/calendar"
