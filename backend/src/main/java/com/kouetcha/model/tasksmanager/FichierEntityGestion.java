@@ -102,22 +102,51 @@ public class FichierEntityGestion extends BaseVS implements Serializable {
         return "";
     }
 
-        private String recupererUrl(ServletRequestAttributes attrs) {
+    private String recupererUrl(ServletRequestAttributes attrs) {
 
-            HttpServletRequest request = attrs.getRequest();
+        HttpServletRequest request = attrs.getRequest();
 
-            // Log temporaire pour voir tous les headers
-            java.util.Collections.list(request.getHeaderNames())
-                .forEach(name -> System.out.println("HEADER: " + name + " = " + request.getHeader(name)));
-
-            String scheme = request.getHeader("X-Forwarded-Proto") != null
+        String scheme = request.getHeader("X-Forwarded-Proto") != null
                 ? request.getHeader("X-Forwarded-Proto")
                 : request.getScheme();
 
-            String host = request.getHeader("X-Forwarded-Host") != null
-                ? request.getHeader("X-Forwarded-Host")
-                : request.getServerName();
+        String xForwardedHost = request.getHeader("X-Forwarded-Host");
+        String host;
+        String portStr = "";
 
-            return scheme + "://" + host + "/tasksmanager/" + recupererControlleur();
+        if (xForwardedHost != null && !xForwardedHost.isEmpty()) {
+            // ✅ $http_host peut contenir host:port ex: 192.168.190.159:4400
+            if (xForwardedHost.contains(":")) {
+                String[] parts = xForwardedHost.split(":", 2);
+                host = parts[0];
+                portStr = ":" + parts[1];
+            } else {
+                host = xForwardedHost;
+                String forwardedPort = request.getHeader("X-Forwarded-Port");
+                if (forwardedPort != null && !forwardedPort.isEmpty()) {
+                    int port = Integer.parseInt(forwardedPort);
+                    if (!isDefaultPort(scheme, port)) {
+                        portStr = ":" + port;
+                    }
+                }
+            }
+        } else {
+            host = request.getServerName();
+            int serverPort = request.getServerPort();
+            if (!isDefaultPort(scheme, serverPort)) {
+                portStr = ":" + serverPort;
+            }
+        }
+
+        // ✅ Remplacer par URL interne Docker si OnlyOffice local
+        String url = scheme + "://" + host + portStr + "/tasksmanager/" + recupererControlleur();
+
+
+        return url;
+    }
+
+private boolean isDefaultPort(String scheme, int port) {
+    return ("http".equals(scheme) && port == 80)
+        || ("https".equals(scheme) && port == 443);
 }
 }

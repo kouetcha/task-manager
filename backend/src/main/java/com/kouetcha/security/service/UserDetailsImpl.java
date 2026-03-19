@@ -3,6 +3,7 @@ package com.kouetcha.security.service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.kouetcha.model.utilisateur.Utilisateur;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,8 @@ import java.util.stream.Collectors;
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
-	private Long id;
+	@Getter
+    private Long id;
 	private String email;
 	@JsonIgnore
 	private String motdepaasse;
@@ -30,7 +32,7 @@ public class UserDetailsImpl implements UserDetails {
 		this.authorities = authorities;
 	}
 
-	public static UserDetailsImpl build(Utilisateur user) {
+    public static UserDetailsImpl build(Utilisateur user) {
 
 
 

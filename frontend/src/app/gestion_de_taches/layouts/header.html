@@ -11,7 +11,7 @@
 
     <!-- Titre de la page -->
     <div class="flex-1 lg:ml-0">
-      <h1 class="text-lg font-semibold text-gray-900 dark:text-white lg:text-xl">Tableau de bord</h1>
+      <h1 class="text-lg font-semibold text-gray-900 dark:text-white lg:text-xl"></h1>
     </div>
 
     <!-- Actions du header -->
@@ -90,24 +90,34 @@
 
       <!-- Menu utilisateur -->
       <div class="relative" #userMenuContainer>
-        <button
-          class="flex items-center space-x-2 rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
-          (click)="toggleUserMenu()"
-        >
-          <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
-            @if (user?.prenom && user?.nom) {
-              <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
-                {{ user?.prenom?.[0] }}{{ user?.nom?.[0] }}
-              </span>
-            } @else {
-              <mat-icon class="text-indigo-600 dark:text-indigo-400">person</mat-icon>
-            }
-          </div>
-          <span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
-            {{ user?.prenom }} {{ user?.nom }}
-          </span>
-          <mat-icon class="hidden text-gray-500 dark:text-gray-400 sm:block">expand_more</mat-icon>
-        </button>
+         <button
+    class="flex items-center space-x-2 rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+    (click)="toggleUserMenu()">
+
+    <!-- Avatar -->
+    <div class="h-8 w-8 rounded-full overflow-hidden shrink-0
+                bg-indigo-100 dark:bg-indigo-900
+                flex items-center justify-center">
+      @if (user?.profilePictureLink) {
+        <img
+          [src]="user?.profilePictureLink||'' "
+          [alt]="user?.prenom"
+          class="h-full w-full object-cover"
+          (error)="onAvatarError($event)">
+      } @else if (user?.prenom && user?.nom) {
+        <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+          {{ user?.prenom?.[0] }}{{ user?.nom?.[0] }}
+        </span>
+      } @else {
+        <mat-icon class="text-indigo-600 dark:text-indigo-400">person</mat-icon>
+      }
+    </div>
+
+    <span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
+      {{ user?.prenom }} {{ user?.nom }}
+    </span>
+    <mat-icon class="hidden text-gray-500 dark:text-gray-400 sm:block">expand_more</mat-icon>
+  </button>
 
         <!-- Dropdown utilisateur -->
         @if (isUserMenuOpen) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { MaterialModule } from '../../material.module';
 import { EmailList } from '../lists/email-list/email-list';
 import { EditableDate } from '../cards/editable-date/editable-date';
@@ -40,6 +40,8 @@ export class ActiviteDetail implements OnInit{
    currentPage: number = 1;
    @Input() pageSize: number = 3; 
    @Input() files: FichierInfo[] = []; 
+isMobile = window.innerWidth < 1024;
+
 
 
     constructor(
@@ -186,4 +188,9 @@ export class ActiviteDetail implements OnInit{
      }
      this.editableChamps.emit(editableDto);
      }
+     
+     @HostListener('window:resize')
+      onResize() {
+        this.isMobile = window.innerWidth < 1024;
+      }
 }

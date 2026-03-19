@@ -59,13 +59,7 @@
         Tâches
       </a>
 
-      <a routerLink="/app/team"
-         routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
-         class="flex items-center rounded-lg px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-         (click)="onLinkClick()">
-        <mat-icon class="mr-3">group</mat-icon>
-        Équipe
-      </a>
+   
 
       <a routerLink="/app/calendar"
          routerLinkActive="bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
@@ -89,13 +83,23 @@
     <div class="border-t border-gray-200 dark:border-gray-700 p-4">
       <div class="flex items-center space-x-3">
         <div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center shrink-0">
-          @if (user) {
-            <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
-              {{ user.prenom?.[0] }}{{ user.nom?.[0] }}
-            </span>
-          } @else {
-            <mat-icon class="text-indigo-600 dark:text-indigo-400 text-sm">person</mat-icon>
-          }
+         <div class="h-8 w-8 rounded-full overflow-hidden shrink-0
+                bg-indigo-100 dark:bg-indigo-900
+                flex items-center justify-center">
+      @if (user?.profilePictureLink) {
+        <img
+          [src]="user?.profilePictureLink|| '' "
+          [alt]="user?.prenom"
+          class="h-full w-full object-cover"
+          (error)="onAvatarError($event)">
+      } @else if (user?.prenom && user?.nom) {
+        <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+          {{ user?.prenom?.[0] }}{{ user?.nom?.[0] }}
+        </span>
+      } @else {
+        <mat-icon class="text-indigo-600 dark:text-indigo-400">person</mat-icon>
+      }
+    </div>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-gray-900 dark:text-white truncate">

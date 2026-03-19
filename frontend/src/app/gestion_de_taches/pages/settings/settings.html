@@ -1,0 +1,495 @@
+<!-- settings.html -->
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-8 transition-colors">
+  <div class="max-w-3xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Paramètres</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+        Gérez vos préférences et informations personnelles
+      </p>
+    </div>
+
+    <!-- Navigation mobile avec indicateurs de scroll -->
+    <div class="sm:hidden relative mb-2">
+      <div class="flex items-center justify-between text-[10px] text-gray-400 px-1">
+        <span>← Glissez →</span>
+        <span class="flex items-center gap-1">
+          <span class="w-1 h-1 rounded-full bg-indigo-400"></span>
+          <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+          <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+          <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+
+      <!-- Sidebar navigation - avec indicateurs visuels -->
+      <nav class="relative">
+        <!-- Ombre pour indiquer le scroll -->
+        <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50 dark:from-gray-900 to-transparent pointer-events-none sm:hidden z-10"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-900 to-transparent pointer-events-none sm:hidden z-10"></div>
+        
+        <div class="flex sm:flex-col gap-1.5 sm:gap-2 sm:w-48 shrink-0 
+                    overflow-x-auto sm:overflow-x-visible pb-2 sm:pb-0
+                    scrollbar-hide px-2 sm:px-0"
+             #navScroll>
+          <button
+            (click)="setSection('profil')"
+            class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                   rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium
+                   transition-all text-left w-full whitespace-nowrap sm:whitespace-normal
+                   flex-shrink-0 sm:flex-shrink relative"
+            [class]="activeSection() === 'profil'
+              ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'">
+            <span class="text-base sm:text-lg">👤</span> 
+            <span>Profil</span>
+            @if (activeSection() === 'profil') {
+              <span class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 
+                           w-1 h-1 bg-indigo-500 rounded-full sm:hidden"></span>
+            }
+          </button>
+          <button
+            (click)="setSection('apparence')"
+            class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                   rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium
+                   transition-all text-left w-full whitespace-nowrap sm:whitespace-normal
+                   flex-shrink-0 sm:flex-shrink relative"
+            [class]="activeSection() === 'apparence'
+              ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'">
+            <span class="text-base sm:text-lg">🎨</span> 
+            <span>Apparence</span>
+            @if (activeSection() === 'apparence') {
+              <span class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 
+                           w-1 h-1 bg-indigo-500 rounded-full sm:hidden"></span>
+            }
+          </button>
+          <button
+            (click)="setSection('securite')"
+            class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                   rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium
+                   transition-all text-left w-full whitespace-nowrap sm:whitespace-normal
+                   flex-shrink-0 sm:flex-shrink relative"
+            [class]="activeSection() === 'securite'
+              ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'">
+            <span class="text-base sm:text-lg">🔒</span> 
+            <span>Sécurité</span>
+            @if (activeSection() === 'securite') {
+              <span class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 
+                           w-1 h-1 bg-indigo-500 rounded-full sm:hidden"></span>
+            }
+          </button>
+          <button
+            (click)="setSection('notifications')"
+            class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                   rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium
+                   transition-all text-left w-full whitespace-nowrap sm:whitespace-normal
+                   flex-shrink-0 sm:flex-shrink relative"
+            [class]="activeSection() === 'notifications'
+              ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'">
+            <span class="text-base sm:text-lg">🔔</span> 
+            <span>Notifications</span>
+            @if (activeSection() === 'notifications') {
+              <span class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 
+                           w-1 h-1 bg-indigo-500 rounded-full sm:hidden"></span>
+            }
+          </button>
+        </div>
+      </nav>
+
+      <!-- Contenu -->
+      <div class="flex-1 min-w-0">
+
+        <!-- ── Section Profil ── -->
+        @if (activeSection() === 'profil') {
+          <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm
+                      border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+
+            <h2 class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-4 sm:mb-6">
+              Informations personnelles
+            </h2>
+
+            <!-- Avatar avec bouton full-view -->
+            <div class="flex flex-col xs:flex-row items-center xs:items-start gap-3 sm:gap-4 mb-5 sm:mb-6">
+              <div class="relative group shrink-0">
+                <img
+                  [src]="avatarUrl"
+                  alt="Photo de profil"
+                  class="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover ring-2
+                         ring-indigo-500/30 dark:ring-indigo-400/30 cursor-pointer
+                         transition-transform group-hover:scale-105"
+                  (click)="openFullView()">
+                
+                <!-- Bouton full-view -->
+                <button
+                  (click)="openFullView()"
+                  class="absolute inset-0 flex items-center justify-center
+                         bg-black/50 rounded-full opacity-0 group-hover:opacity-100
+                         transition-opacity backdrop-blur-sm">
+                  <span class="text-white text-xs">🔍</span>
+                </button>
+
+                <!-- Badge "Voir en grand" sur mobile -->
+                <span class="absolute -bottom-5 left-1/2 transform -translate-x-1/2
+                             text-[8px] text-indigo-500 whitespace-nowrap sm:hidden">
+                  tap pour voir en grand
+                </span>
+
+                <label
+                  class="absolute -bottom-1 -right-1 w-6 sm:w-7 h-6 sm:h-7 
+                         bg-indigo-600 hover:bg-indigo-700
+                         rounded-full flex items-center justify-center cursor-pointer
+                         transition-colors shadow z-10">
+                  <span class="text-white text-[10px] sm:text-xs">✏️</span>
+                  <input type="file" accept="image/*" class="hidden"
+                         (change)="onFileSelected($event)">
+                </label>
+              </div>
+              <div class="text-center xs:text-left">
+                <p class="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">
+                  {{ currentUser()?.prenom }} {{ currentUser()?.nom }}
+                </p>
+                <p class="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-0.5 break-words">
+                  {{ currentUser()?.email }}
+                </p>
+                <p class="text-[10px] sm:text-xs text-indigo-500 mt-1">
+                  Cliquez sur ✏️ pour changer la photo
+                </p>
+              </div>
+            </div>
+
+            <!-- Formulaire -->
+            @if (profilForm) {
+              <form (ngSubmit)="saveProfile()" [formGroup]="profilForm" class="space-y-3 sm:space-y-4">
+
+                <div class="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+
+                  <!-- Prénom -->
+                  <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                                  dark:text-gray-400 mb-0.5 sm:mb-1">Prénom</label>
+                    <input
+                      formControlName="prenom"
+                      type="text"
+                      placeholder="Votre prénom"
+                      class="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm 
+                             border transition-colors
+                             bg-gray-50 dark:bg-gray-700
+                             text-gray-800 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      [class]="hasError('prenom')
+                        ? 'border-red-400 dark:border-red-500'
+                        : 'border-gray-200 dark:border-gray-600'">
+                    @if (hasError('prenom')) {
+                      <p class="text-[10px] text-red-500 mt-0.5">Prénom requis (min 2 caractères)</p>
+                    }
+                  </div>
+
+                  <!-- Nom -->
+                  <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                                  dark:text-gray-400 mb-0.5 sm:mb-1">Nom</label>
+                    <input
+                      formControlName="nom"
+                      type="text"
+                      placeholder="Votre nom"
+                      class="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm 
+                             border transition-colors
+                             bg-gray-50 dark:bg-gray-700
+                             text-gray-800 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      [class]="hasError('nom')
+                        ? 'border-red-400 dark:border-red-500'
+                        : 'border-gray-200 dark:border-gray-600'">
+                    @if (hasError('nom')) {
+                      <p class="text-[10px] text-red-500 mt-0.5">Nom requis (min 2 caractères)</p>
+                    }
+                  </div>
+
+                  <!-- Email -->
+                  <div class="xs:col-span-2">
+                    <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                                  dark:text-gray-400 mb-0.5 sm:mb-1">Email</label>
+                    <input
+                      formControlName="email"
+                      type="email"
+                      placeholder="email@exemple.com"
+                      class="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm 
+                             border transition-colors
+                             bg-gray-50 dark:bg-gray-700
+                             text-gray-800 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      [class]="hasError('email')
+                        ? 'border-red-400 dark:border-red-500'
+                        : 'border-gray-200 dark:border-gray-600'">
+                    @if (hasError('email')) {
+                      <p class="text-[10px] text-red-500 mt-0.5">Email valide requis</p>
+                    }
+                  </div>
+
+                  <!-- Téléphone -->
+                  <div class="xs:col-span-2">
+                    <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                                  dark:text-gray-400 mb-0.5 sm:mb-1">Téléphone </label>
+                    <input
+                      formControlName="telephone"
+                      type="tel"
+                      placeholder="+33 6 12 34 56 78"
+                      class="w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm 
+                             border transition-colors
+                             bg-gray-50 dark:bg-gray-700
+                             text-gray-800 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      [class]="hasError('telephone')
+                        ? 'border-red-400 dark:border-red-500'
+                        : 'border-gray-200 dark:border-gray-600'">
+                    @if (hasError('telephone')) {
+                      <p class="text-[10px] text-red-500 mt-0.5">Format téléphone invalide</p>
+                    }
+                  </div>
+
+                </div>
+
+                <!-- Feedback messages -->
+                @if (saveSuccess()) {
+                  <div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm 
+                              text-emerald-600 dark:text-emerald-400 
+                              bg-emerald-50 dark:bg-emerald-900/30
+                              px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg">
+                    <span>✅</span> Profil mis à jour avec succès
+                  </div>
+                }
+                @if (saveError()) {
+                  <div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm 
+                              text-red-600 dark:text-red-400 
+                              bg-red-50 dark:bg-red-900/30
+                              px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg">
+                    <span>❌</span> {{ saveError() }}
+                  </div>
+                }
+
+                <!-- Bouton - plein largeur sur mobile -->
+                <div class="flex justify-end pt-1 sm:pt-2">
+                  <button
+                    type="submit"
+                    [disabled]="isSaving()"
+                    class="w-full xs:w-auto px-4 sm:px-6 py-2 sm:py-2.5 
+                           rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold 
+                           text-white bg-indigo-600 hover:bg-indigo-700 
+                           disabled:opacity-50 disabled:cursor-not-allowed 
+                           transition-colors">
+                    {{ isSaving() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+                  </button>
+                </div>
+
+              </form>
+            }
+          </div>
+        }
+
+        <!-- ── Section Apparence ── -->
+        @if (activeSection() === 'apparence') {
+          <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm
+                      border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+
+            <h2 class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-4 sm:mb-6">
+              Apparence
+            </h2>
+
+            <!-- Thème - grille adaptative -->
+            <div>
+              <p class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
+                Thème
+              </p>
+              <div class="grid grid-cols-1 xs:grid-cols-3 gap-2 sm:gap-3">
+                @for (t of themes; track t.value) {
+                  <button
+                    (click)="setTheme(t.value)"
+                    class="flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 
+                           rounded-lg sm:rounded-xl border-2 transition-all"
+                    [class]="currentTheme() === t.value
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/40'
+                      : 'border-gray-200 dark:border-gray-600 
+                         hover:border-gray-300 dark:hover:border-gray-500 
+                         hover:bg-gray-50 dark:hover:bg-gray-700'">
+                    
+                    <span class="text-xl sm:text-2xl">{{ t.icon }}</span>
+                    
+                    <div class="text-center">
+                      <span class="text-xs sm:text-sm font-medium block"
+                            [class]="currentTheme() === t.value
+                              ? 'text-indigo-600 dark:text-indigo-400'
+                              : 'text-gray-600 dark:text-gray-400'">
+                        {{ t.label }}
+                      </span>
+                      <span class="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 
+                                   hidden xs:block">
+                        {{ t.desc }}
+                      </span>
+                    </div>
+                    
+                    @if (currentTheme() === t.value) {
+                      <span class="text-[10px] sm:text-xs text-indigo-500 font-semibold">
+                        ✓ Actif
+                      </span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+
+          </div>
+        }
+
+        <!-- ── Section Sécurité ── -->
+        @if (activeSection() === 'securite') {
+          <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm
+                      border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+
+            <h2 class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-4 sm:mb-6">
+              Sécurité
+            </h2>
+
+            <!-- Changement de mot de passe -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                              dark:text-gray-400 mb-0.5 sm:mb-1">
+                  Mot de passe actuel
+                </label>
+                <input type="password" class="w-full px-2 sm:px-3 py-1.5 sm:py-2 
+                                              rounded-lg text-xs sm:text-sm 
+                                              border border-gray-200 dark:border-gray-600
+                                              bg-gray-50 dark:bg-gray-700">
+              </div>
+              
+              <div>
+                <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                              dark:text-gray-400 mb-0.5 sm:mb-1">
+                  Nouveau mot de passe
+                </label>
+                <input type="password" class="w-full px-2 sm:px-3 py-1.5 sm:py-2 
+                                              rounded-lg text-xs sm:text-sm 
+                                              border border-gray-200 dark:border-gray-600
+                                              bg-gray-50 dark:bg-gray-700">
+              </div>
+              
+              <div>
+                <label class="block text-[10px] sm:text-xs font-medium text-gray-600
+                              dark:text-gray-400 mb-0.5 sm:mb-1">
+                  Confirmer le mot de passe
+                </label>
+                <input type="password" class="w-full px-2 sm:px-3 py-1.5 sm:py-2 
+                                              rounded-lg text-xs sm:text-sm 
+                                              border border-gray-200 dark:border-gray-600
+                                              bg-gray-50 dark:bg-gray-700">
+              </div>
+              
+              <button class="w-full xs:w-auto mt-2 px-4 sm:px-6 py-2 sm:py-2.5 
+                             rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold 
+                             text-white bg-indigo-600 hover:bg-indigo-700">
+                Changer le mot de passe
+              </button>
+            </div>
+
+          </div>
+        }
+
+        <!-- ── Section Notifications ── -->
+        @if (activeSection() === 'notifications') {
+          <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm
+                      border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+
+            <h2 class="text-sm sm:text-base font-semibold text-gray-800 dark:text-white mb-4 sm:mb-6">
+              Notifications
+            </h2>
+
+            <!-- Préférences de notifications -->
+            <div class="space-y-3 sm:space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Notifications email
+                  </p>
+                  <p class="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                    Recevoir des notifications par email
+                  </p>
+                </div>
+                <button class="relative w-10 h-5 sm:w-12 sm:h-6 rounded-full 
+                               bg-indigo-600 transition-colors">
+                  <span class="absolute right-0.5 sm:right-1 top-0.5 w-4 h-4 
+                               sm:w-5 sm:h-5 bg-white rounded-full"></span>
+                </button>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Notifications push
+                  </p>
+                  <p class="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                    Recevoir des notifications sur votre appareil
+                  </p>
+                </div>
+                <button class="relative w-10 h-5 sm:w-12 sm:h-6 rounded-full 
+                               bg-gray-300 dark:bg-gray-600">
+                  <span class="absolute left-0.5 sm:left-1 top-0.5 w-4 h-4 
+                               sm:w-5 sm:h-5 bg-white rounded-full"></span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal full-view image -->
+  @if (showFullView()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4
+                bg-black/90 backdrop-blur-sm transition-all"
+         (click)="closeFullView()">
+      
+      <!-- Image en grand -->
+      <div class="relative max-w-3xl max-h-[90vh] w-full h-full flex items-center justify-center"
+           (click)="$event.stopPropagation()">
+        
+        <img [src]="fullViewImage()" 
+             alt="Photo de profil"
+             class="max-w-full max-h-full object-contain rounded-lg
+                    shadow-2xl animate-fadeIn">
+        
+        <!-- Bouton fermeture -->
+        <button
+          (click)="closeFullView()"
+          class="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10
+                 bg-black/50 hover:bg-black/70 rounded-full
+                 flex items-center justify-center
+                 text-white text-lg sm:text-xl transition-colors">
+          ✕
+        </button>
+
+        <!-- Informations -->
+        <div class="absolute bottom-2 left-2 sm:bottom-4 sm:left-4
+                    bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1.5">
+          <p class="text-white text-xs sm:text-sm">
+            {{ currentUser()?.prenom }} {{ currentUser()?.nom }}
+          </p>
+        </div>
+
+        <!-- Indicateur de swipe sur mobile -->
+        <div class="absolute bottom-2 right-2 sm:hidden text-white/50 text-xs
+                    flex items-center gap-1">
+          <span>⬆️⬇️</span> zoom
+        </div>
+      </div>
+    </div>
+  }
+</div>

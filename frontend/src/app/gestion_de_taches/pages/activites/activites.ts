@@ -104,10 +104,10 @@ export class Activites implements OnInit {
           );
           return of({
             content: [],
-            totalElements: 0,
+            page:{totalElements: 0,
             totalPages: 0,
             number: 0,
-            size: this.pageSize,
+            size: this.pageSize},
             first: true,
             last: true
           } as Page<Activite>);
@@ -119,9 +119,9 @@ export class Activites implements OnInit {
       )
       .subscribe((pageResult) => {
         this.activites = pageResult.content;
-        this.totalElements = pageResult.totalElements;
-        this.totalPages = pageResult.totalPages;
-        this.currentPage = pageResult.number;
+        this.totalElements = pageResult.page.totalElements;
+        this.totalPages = pageResult.page.totalPages;
+        this.currentPage = pageResult.page.number;
         this.filterActivites();
       });
   }

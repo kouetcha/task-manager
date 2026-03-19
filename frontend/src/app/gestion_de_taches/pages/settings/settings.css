@@ -1,0 +1,200 @@
+/* settings.css */
+
+:host {
+  display: block;
+}
+
+/* Masquer la scrollbar sur mobile pour la navigation */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Breakpoint personnalisé pour très petits écrans */
+@media (max-width: 480px) {
+  .xs\:col-span-2 {
+    grid-column: span 2;
+  }
+  
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .xs\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  
+  .xs\:flex-row {
+    flex-direction: row;
+  }
+  
+  .xs\:items-start {
+    align-items: flex-start;
+  }
+  
+  .xs\:text-left {
+    text-align: left;
+  }
+  
+  .xs\:w-auto {
+    width: auto;
+  }
+  
+  .xs\:block {
+    display: block;
+  }
+}
+
+/* Animation de transition pour les sections */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Style pour les inputs */
+input:focus {
+  outline: none;
+}
+
+/* Amélioration du touch sur mobile */
+@media (max-width: 640px) {
+  button, label {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  input {
+    font-size: 16px !important; /* Évite le zoom automatique sur iOS */
+  }
+  
+  /* Espacement supplémentaire pour le clavier mobile */
+  .space-y-3 > :last-child {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Style pour les toggles */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #4F46E5;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #4F46E5;
+}
+
+/* Animation de chargement */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Dark mode optimisations */
+:host-context(.dark) input::placeholder {
+  color: #6B7280;
+}
+
+:host-context(.dark) input:-webkit-autofill,
+:host-context(.dark) input:-webkit-autofill:hover,
+:host-context(.dark) input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px #374151 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* settings.css - Ajouts */
+
+/* Animation pour le modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Indicateurs de scroll */
+.scroll-indicator {
+  position: relative;
+}
+
+.scroll-indicator::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.05));
+  pointer-events: none;
+}
+
+/* Style pour le modal full-view */
+.fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+/* Amélioration du touch sur mobile */
+@media (max-width: 640px) {
+  .group:active {
+    transform: scale(0.98);
+  }
+  
+  /* Style pour le modal */
+  .fixed img {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Indicateur de scroll visible */
+  .overflow-x-auto {
+    scroll-snap-type: x mandatory;
+  }
+  
+  .overflow-x-auto > button {
+    scroll-snap-align: start;
+  }
+}
+
+/* Support du dark mode pour le modal */
+:host-context(.dark) .fixed {
+  background-color: rgba(0, 0, 0, 0.95);
+}
+
+/* Style pour le badge "tap pour voir en grand" */
+@media (max-width: 480px) {
+  .group:hover .opacity-0 {
+    opacity: 0.8;
+  }
+  
+  /* Amélioration de la zone de clic */
+  .group {
+    cursor: pointer;
+  }
+}

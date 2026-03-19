@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { EmailList } from '../../lists/email-list/email-list';
 import { EditableDto, EmailDto, FichierInfo, Projet } from '../../../interfaces/base-entity-gestion';
 import { MaterialModule } from '../../../material.module';
@@ -37,6 +37,9 @@ export class ProjetCardDetail {
    currentPage: number = 1;
    @Input() pageSize: number = 3; 
    @Input() files: FichierInfo[] = []; 
+   isMobile = window.innerWidth < 1024;
+
+
 
 
     constructor(
@@ -177,6 +180,11 @@ export class ProjetCardDetail {
     onAddFichiers(fichiers:File[]):void{
     this.ajoutFichiers.emit(fichiers);
   }
+
+  @HostListener('window:resize')
+onResize() {
+  this.isMobile = window.innerWidth < 1024;
+}
 
 
 

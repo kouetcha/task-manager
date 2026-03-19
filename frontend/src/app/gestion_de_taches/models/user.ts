@@ -13,7 +13,11 @@ export class User {
     public profilePictureLink: string,
     public subscriptionPlan: string,
     public fullName: string,
-    public roleProjet:string
+    public roleProjet:string,
+    public est_actif:boolean,
+    public dateCreation:string,
+    public dernierConnexion:string,
+    public dateModification: string,
   ) {
     fullName = `${prenom} ${nom}`;
   }

@@ -19,6 +19,11 @@ import { Activites } from './gestion_de_taches/pages/activites/activites';
 import { Taches } from './gestion_de_taches/pages/taches/taches';
 import { ActiviteDetails } from './gestion_de_taches/pages/activite-details/activite-details';
 import { TacheDetails } from './gestion_de_taches/pages/tache-details/tache-details';
+import { AuthGuard } from './gestion_de_taches/auth/auth.guard';
+import { Calendar } from './gestion_de_taches/pages/calendar/calendar';
+import { Settings } from './gestion_de_taches/pages/settings/settings';
+import { Profil } from './gestion_de_taches/pages/profil/profil';
+
 
 export const routes: Routes = [
   {
@@ -33,16 +38,19 @@ export const routes: Routes = [
   {
     path: 'app',
     component: AuthLayout,
-    canActivate: [authGuard],
+    canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
-      {path:'projets',component:Projets},
-       {path:'projets/:id',component:ProjetDetail},
-       {path:'activites',component:Activites},
-        {path:'activites/:id',component:ActiviteDetails},
-      {path:'taches',component:Taches},
-      {path:'taches/:id',component:TacheDetails}
+      {path:'projets', component:Projets},
+      {path:'projets/:id', component:ProjetDetail},
+      {path:'activites', component:Activites},
+      {path:'activites/:id', component:ActiviteDetails},
+      {path:'taches', component:Taches},
+      {path:'taches/:id', component:TacheDetails},
+      {path:'calendar', component:Calendar},
+      {path:'settings', component:Settings},
+      {path:'profile', component:Profil}
      
      
     ],
