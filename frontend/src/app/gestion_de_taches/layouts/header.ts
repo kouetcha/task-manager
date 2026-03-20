@@ -14,10 +14,11 @@ import { SidebarService } from '../services/SidebarService';
 import { AuthService } from '../services/AuthService';
 import { ThemeMode, ThemeService } from '../services/ThemeService';
 import { User } from '../models/user';
-import { Subject, takeUntil, filter, switchMap } from 'rxjs';
+import { Subject, takeUntil, filter, switchMap, BehaviorSubject } from 'rxjs';
 import { WebSocketService } from '../services/websocket.service';
 import { NotificationEvent } from '../services/websocket.service';
 import { NotificationService } from '../services/notification.service';
+import { NotificationsService } from '../services/notifications.service';
 
 @Component({
   selector: 'app-header',
@@ -29,7 +30,7 @@ import { NotificationService } from '../services/notification.service';
 export class Header implements OnInit, OnDestroy {
 
   user: User | null = null;
-
+   unseenCount: number = 0;
   private destroy$ = new Subject<void>();
 
   sidebarService = inject(SidebarService);
@@ -38,6 +39,7 @@ export class Header implements OnInit, OnDestroy {
   router         = inject(Router);
   wsService      = inject(WebSocketService);
   popService     = inject(NotificationService);
+  notificationService=inject(NotificationsService);
 
   isUserMenuOpen  = false;
   isThemeMenuOpen = false;
@@ -50,7 +52,10 @@ export class Header implements OnInit, OnDestroy {
 
     this.authService.user$
       .pipe(takeUntil(this.destroy$), filter(user => !!user))
-      .subscribe(user => this.user = user);
+      .subscribe(user => {
+        this.user = user;
+        this.notificationService.refreshUnseenCount(user.id);
+      });
 
   
     this.authService.user$.pipe(
@@ -58,6 +63,9 @@ export class Header implements OnInit, OnDestroy {
       filter(user => !!user)
     ).subscribe(() => {
       this.wsService.connect();
+     
+
+        
     });
 
    
@@ -69,10 +77,23 @@ export class Header implements OnInit, OnDestroy {
       next:  (event: NotificationEvent) => {
         console.log('🔔 Notification reçue :', event);
         this.popService.message(event.message);
+          if (this.user) {
+            this.notificationService.refreshUnseenCount(this.user.id);
+          }
         
       },
       error: err => console.error('❌ Erreur WS :', err)
     });
+
+     this.notificationService.getUnseenCount$().subscribe(count => {
+      this.unseenCount = count;
+    });
+
+      this.notificationService.getUnseenCount$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.unseenCount = count;
+      });
   }
 
   ngOnDestroy(): void {

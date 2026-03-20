@@ -57,7 +57,7 @@ public class WebSocketServiceImpl implements WebSocketService{
     // ── Mise à jour live d'une tache (tous les membres) ──────────
     @Async
     @Override
-    public void sendTachesUpdate(Long tacheId, NotificationEvent event) {
+    public void sendTacheUpdate(Long tacheId, NotificationEvent event) {
         log.info("sendNotification-I");
         log.info(String.valueOf(event));
         messagingTemplate.convertAndSend(

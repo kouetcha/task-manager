@@ -1,10 +1,12 @@
 package com.kouetcha.service.tasksmanager;
 
+import com.kouetcha.config.auditor.UserContext;
 import com.kouetcha.dto.tasksmanager.*;
 import com.kouetcha.dto.tasksmanager.websocket.NotificationEvent;
 import com.kouetcha.model.enums.Status;
 
 import com.kouetcha.model.enums.Type;
+import com.kouetcha.model.enums.TypeEvent;
 import com.kouetcha.model.tasksmanager.EmailProjet;
 import com.kouetcha.model.tasksmanager.FichierEntityGestion;
 import com.kouetcha.model.tasksmanager.Projet;
@@ -37,6 +39,7 @@ public class ProjetServiceImpl implements ProjetService {
     private final FichierService<FichierEntityGestion, Projet> fichierService;
     private final EmailProjetServiceImpl emailProjetService;
     private final WebSocketService webSocketService;
+    private final NotificationService notificationService;
 
     @Override
     public Projet create(@Valid BaseEntityGestionDto dto) {
@@ -78,10 +81,10 @@ public class ProjetServiceImpl implements ProjetService {
 
                 projet.getEmails().addAll(emailProjets);
             }
-             Projet finalProjet = projet;
-            emails.forEach(((email) ->{
-                 createProjetNoti(email.strip(), finalProjet);
-             } ));
+
+            List<Utilisateur>utilisateurs=utilisateurRepository.findByEmailIn(emails);
+            createProjetNoti(utilisateurs, projet);
+
         }
         return projet;
     }
@@ -117,49 +120,83 @@ public class ProjetServiceImpl implements ProjetService {
             }
         }
         }
-        updateProjetNoti(projet);
+        updateProjetNoti(projet,"Le projet : *" + projet.getDesignation()+"* a été mis à jour");
         return projetRepository.save(projet);
     }
-    private NotificationEvent buildProjetEvent(String type, Projet projet) {
+    private void sendAndPersistNotification(Utilisateur emetteur,
+                                            Utilisateur recepteur,
+                                            String message,
+                                            Long parentId,
+                                            TypeEvent eventType) {
+
+        NotificationDto dto = new NotificationDto()
+                .setEmetteur(emetteur)
+                .setReceveur(recepteur)
+                .setType(Type.PROJET)
+                .setMessage(message)
+                .setParentId(parentId)
+                .setEvent(eventType);
+
+        notificationService.create(dto);
+    }
+    private NotificationEvent buildProjetEvent(TypeEvent type, Projet projet, String message) {
         return NotificationEvent.builder()
                 .type(type)
-                .message("Projet : *" + projet.getDesignation()+"* mise à jour")
+                .message(message)
                 .entiteId(projet.getId())
                 .entiteType(Type.PROJET)
                 .timestamp(Instant.now())
                 .build();
     }
-    private void createProjetNoti(String email, Projet projet) {
-        NotificationEvent event = buildProjetEvent("PROJET_ASSIGNE", projet);
+    private void createProjetNoti(List<Utilisateur> utilisateurs, Projet projet) {
 
-        webSocketService.sendNotification(email, event);
+        if (utilisateurs == null || utilisateurs.isEmpty()) return;
+
+        String message = "Vous avez été associé au Projet : *" + projet.getDesignation() + "*";
+        NotificationEvent event = buildProjetEvent(TypeEvent.PROJET_ASSIGNE, projet, message);
+
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
+
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, projet.getId(), TypeEvent.PROJET_ASSIGNE);
+        });
     }
-    private void updateProjetNoti(Projet projet) {
+    private void updateProjetNoti(Projet projet, String message) {
 
-        NotificationEvent event = buildProjetEvent("PROJET_MODIFIE", projet);
-        log.info("Emails:: "+projet.getEmails());
+        if (projet.getEmails() == null || projet.getEmails().isEmpty()) return;
+
+        NotificationEvent event = buildProjetEvent(TypeEvent.PROJET_MODIFIE, projet, message);
 
         List<String> emails = projet.getEmails().stream()
-                .filter(EmailProjet::isActive) // important
+                .filter(EmailProjet::isActive)
                 .map(EmailProjet::getEmail)
                 .filter(Objects::nonNull)
-                .map(String::toLowerCase)
+                .map(e -> e.strip().toLowerCase())
                 .distinct()
                 .toList();
 
         if (emails.isEmpty()) return;
 
+        log.info("Mise à jour projet {} - {}", projet.getDesignation(), projet.getId());
 
 
-        emails.forEach(email ->
-                        webSocketService.sendNotification(email.strip(), event)
-                );
+        List<Utilisateur> utilisateurs = utilisateurRepository.findByEmailIn(emails);
 
-        log.info("Mise à jour du projet:: {} {}", projet.getDesignation(), projet.getId());
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
 
-        // 🔥 broadcast projet
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, projet.getId(), TypeEvent.PROJET_MODIFIE);
+        });
+
         webSocketService.sendProjetUpdate(projet.getId(), event);
     }
+
 
     @Override
     public Projet updateDesignation(Long id, @Valid TexteDto dto) {
@@ -171,7 +208,7 @@ public class ProjetServiceImpl implements ProjetService {
         projet.setDesignation(dto.getTexte());
 
         projet= projetRepository.save(projet);
-        updateProjetNoti(projet);
+        updateProjetNoti(projet,"La designation du projet : *" + projet.getDesignation()+"* a été mise à jour");
         return projet;
     }
     @Override
@@ -181,7 +218,7 @@ public class ProjetServiceImpl implements ProjetService {
         projet.setDescription(dto.getTexte().strip());
 
         projet= projetRepository.save(projet);
-        updateProjetNoti(projet);
+        updateProjetNoti(projet,"La description du projet : *" + projet.getDesignation()+"* a été mise à jour");
         return projet;
     }
     @Override
@@ -198,7 +235,7 @@ public class ProjetServiceImpl implements ProjetService {
         projet.setDateDebut(nouvelleDateDebut);
 
         projet= projetRepository.save(projet);
-        updateProjetNoti(projet);
+        updateProjetNoti(projet,"La date de début du projet : *" + projet.getDesignation()+"* a été mise à jour");
         return projet;
     }
 
@@ -215,7 +252,7 @@ public class ProjetServiceImpl implements ProjetService {
 
         projet.setDateFin(nouvelleDateFin);
         projet= projetRepository.save(projet);
-        updateProjetNoti(projet);
+        updateProjetNoti(projet,"La date de fin du projet : *" + projet.getDesignation()+"* a été mise à jour");
         return projet;
     }
     @Override

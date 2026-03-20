@@ -1,7 +1,13 @@
 package com.kouetcha.model.enums;
 
-public enum Type {
-    PROJET,
-    ACTIVITE,
-    TACHE
+public enum TypeEvent {
+    PROJET_ASSIGNE,
+    PROJET_MODIFIE,
+    ACTIVITE_MODIFIEE,
+    ACTIVITE_ASSIGNEE,
+    TACHE_ASSIGNEE,
+    TACHE_MODIFIEE,
+    COMMENTAIRE_PROJET,
+    COMMENTAIRE_ACTIVITE,
+    COMMENTAIRE_TACHE
 }

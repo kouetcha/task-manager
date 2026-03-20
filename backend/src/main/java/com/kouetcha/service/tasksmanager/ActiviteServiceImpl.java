@@ -1,6 +1,10 @@
 package com.kouetcha.service.tasksmanager;
 
+import com.kouetcha.config.auditor.UserContext;
 import com.kouetcha.dto.tasksmanager.*;
+import com.kouetcha.dto.tasksmanager.websocket.NotificationEvent;
+import com.kouetcha.model.enums.Type;
+import com.kouetcha.model.enums.TypeEvent;
 import com.kouetcha.model.tasksmanager.Activite;
 import com.kouetcha.model.tasksmanager.EmailActivite;
 import com.kouetcha.model.tasksmanager.FichierEntityGestion;
@@ -9,6 +13,7 @@ import com.kouetcha.model.utilisateur.Utilisateur;
 import com.kouetcha.repository.tasksmanager.ActiviteRepository;
 import com.kouetcha.repository.tasksmanager.ProjetRepository;
 import com.kouetcha.repository.utilisateur.UtilisateurRepository;
+import com.kouetcha.service.tasksmanager.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +22,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -33,6 +40,8 @@ public class ActiviteServiceImpl implements ActiviteService {
     private final UtilisateurRepository utilisateurRepository;
     private final FichierActiviteServiceImpl fichierActiviteService;
     private final FichierService<FichierEntityGestion, Activite> fichierService;
+    private final WebSocketService webSocketService;
+    private final NotificationService notificationService;
 
     @Override
     public Activite create(BaseEntityGestionDto dto, Long projetId) {
@@ -64,11 +73,13 @@ public class ActiviteServiceImpl implements ActiviteService {
 
         if(dto.getEmails()!=null&&!dto.getEmails().isEmpty())
         {  List<EmailActivite>emailActivites=new ArrayList<>();
+            List<String> emails=new ArrayList<>();
             log.info(String.valueOf(dto.getEmails()));
             for(String email:dto.getEmails()) {
                 if(!email.isBlank())
                 { log.info("Email::");
                     log.info(email.strip());
+                    emails.add(email.strip());
                     emailActivites.add(emailActiviteService.addEmail(activite.getId(),email.strip()));
                 }
             }
@@ -76,6 +87,8 @@ public class ActiviteServiceImpl implements ActiviteService {
 
                 activite.getEmails().addAll(emailActivites);
             }
+            List<Utilisateur>utilisateurs=utilisateurRepository.findByEmailIn(emails);
+            createActiviteNoti(utilisateurs,activite);
         }
         return activite;
     }
@@ -111,7 +124,7 @@ public class ActiviteServiceImpl implements ActiviteService {
             }
         }
         }
-
+        updateActiviteNoti(activite,"L'activité : *" + activite.getDesignation()+"* a été mise à jour");
         return activiteRepository.save(activite);
     }
     @Override
@@ -122,7 +135,7 @@ public class ActiviteServiceImpl implements ActiviteService {
             throw new IllegalArgumentException("La désignation ne peut pas etre nulle");
         }
         activite.setDesignation(dto.getTexte());
-
+         updateActiviteNoti(activite,"La désignation de l'activité * "+activite.getDesignation()+"* a été mise à jour");
         return activiteRepository.save(activite);
     }
     @Override
@@ -130,6 +143,7 @@ public class ActiviteServiceImpl implements ActiviteService {
         Activite activite = retrieveActivite(id);
 
         activite.setDescription(dto.getTexte().strip());
+        updateActiviteNoti(activite,"La description de l'activité * "+activite.getDesignation()+"* a été mise à jour");
 
         return activiteRepository.save(activite);
     }
@@ -145,6 +159,8 @@ public class ActiviteServiceImpl implements ActiviteService {
         }
 
         activite.setDateDebut(nouvelleDateDebut);
+        updateActiviteNoti(activite,"La date de début de l'activité * "+activite.getDesignation()+"* a été mise à jour");
+
         return activiteRepository.save(activite);
     }
 
@@ -160,6 +176,7 @@ public class ActiviteServiceImpl implements ActiviteService {
         }
 
         activite.setDateFin(nouvelleDateFin);
+        updateActiviteNoti(activite,"La date de fin de l'activité * "+activite.getDesignation()+"* a été mise à jour");
         return activiteRepository.save(activite);
     }
     @Override
@@ -233,4 +250,81 @@ public class ActiviteServiceImpl implements ActiviteService {
             throw new IllegalArgumentException("Une activité avec cette désignation existe déjà dans ce projet");
         }
     }
+
+
+    private void sendAndPersistNotification(Utilisateur emetteur,
+                                            Utilisateur recepteur,
+                                            String message,
+                                            Long parentId,
+                                            TypeEvent eventType) {
+
+        NotificationDto dto = new NotificationDto()
+                .setEmetteur(emetteur)
+                .setReceveur(recepteur)
+                .setType(Type.ACTIVITE)
+                .setMessage(message)
+                .setParentId(parentId)
+                .setEvent(eventType);
+
+        notificationService.create(dto);
+    }
+    private NotificationEvent buildActiviteEvent(TypeEvent type, Activite activite, String message) {
+        return NotificationEvent.builder()
+                .type(type)
+                .message(message)
+                .entiteId(activite.getId())
+                .entiteType(Type.ACTIVITE)
+                .timestamp(Instant.now())
+                .build();
+    }
+    private void createActiviteNoti(List<Utilisateur> utilisateurs, Activite activite) {
+
+        if (utilisateurs == null || utilisateurs.isEmpty()) return;
+
+        String message = "Vous avez été associé au Activite : *" + activite.getDesignation() + "*";
+        NotificationEvent event = buildActiviteEvent(TypeEvent.ACTIVITE_ASSIGNEE, activite, message);
+
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
+
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, activite.getId(), TypeEvent.ACTIVITE_ASSIGNEE);
+        });
+    }
+    private void updateActiviteNoti(Activite activite, String message) {
+
+        if (activite.getEmails() == null || activite.getEmails().isEmpty()) return;
+
+        NotificationEvent event = buildActiviteEvent(TypeEvent.ACTIVITE_MODIFIEE, activite, message);
+
+        List<String> emails = activite.getEmails().stream()
+                .filter(EmailActivite::isActive)
+                .map(EmailActivite::getEmail)
+                .filter(Objects::nonNull)
+                .map(e -> e.strip().toLowerCase())
+                .distinct()
+                .toList();
+
+        if (emails.isEmpty()) return;
+
+        log.info("Mise à jour activite {} - {}", activite.getDesignation(), activite.getId());
+
+
+        List<Utilisateur> utilisateurs = utilisateurRepository.findByEmailIn(emails);
+
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
+
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, activite.getId(), TypeEvent.ACTIVITE_MODIFIEE);
+        });
+
+        webSocketService.sendActiviteUpdate(activite.getId(), event);
+    }
+
+
 }

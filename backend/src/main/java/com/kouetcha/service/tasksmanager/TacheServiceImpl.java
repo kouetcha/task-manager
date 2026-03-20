@@ -1,5 +1,9 @@
 package com.kouetcha.service.tasksmanager;
+import com.kouetcha.config.auditor.UserContext;
 import com.kouetcha.dto.tasksmanager.*;
+import com.kouetcha.dto.tasksmanager.websocket.NotificationEvent;
+import com.kouetcha.model.enums.Type;
+import com.kouetcha.model.enums.TypeEvent;
 import com.kouetcha.model.tasksmanager.Activite;
 import com.kouetcha.model.tasksmanager.EmailTache;
 import com.kouetcha.model.tasksmanager.FichierEntityGestion;
@@ -10,6 +14,7 @@ import com.kouetcha.repository.tasksmanager.ActiviteRepository;
 
 import com.kouetcha.repository.tasksmanager.TacheRepository;
 import com.kouetcha.repository.utilisateur.UtilisateurRepository;
+import com.kouetcha.service.tasksmanager.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +23,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 @Slf4j
 @Transactional
@@ -32,6 +40,8 @@ public class TacheServiceImpl implements TacheService {
     private final UtilisateurRepository utilisateurRepository;
     private final EmailTacheServiceImpl emailTacheService;
     private final FichierService<FichierEntityGestion, Tache> fichierService;
+    private final WebSocketService webSocketService;
+    private final NotificationService notificationService;
 
     @Override
     public Tache create(BaseEntityGestionDto dto, Long activiteId) {
@@ -63,10 +73,12 @@ public class TacheServiceImpl implements TacheService {
         }
         if(dto.getEmails()!=null&&!dto.getEmails().isEmpty())
         {  List<EmailTache>emailTaches=new ArrayList<>();
+            List<String> emails=new ArrayList<>();
             for(String email:dto.getEmails()) {
             if(!email.isBlank())
             { log.info("Email::");
                 log.info(email.strip());
+                emails.add(email.strip());
               emailTaches.add( emailTacheService.addEmail(tache.getId(),email.strip() ));
             }
         }
@@ -74,6 +86,8 @@ public class TacheServiceImpl implements TacheService {
 
             tache.getEmails().addAll(emailTaches);
         }
+            List<Utilisateur>utilisateurs=utilisateurRepository.findByEmailIn(emails);
+            createTacheNoti(utilisateurs,tache);
         }
 
 
@@ -97,7 +111,7 @@ public class TacheServiceImpl implements TacheService {
                 fichierService.upload(tache.getId(), f.getFichier(), f.getNomFichier());
             }
         }
-
+        updateTacheNoti(tache,"La tâche : *" + tache.getDesignation()+"* a été mise à jour");
         return tacheRepository.save(tache);
     }
 
@@ -109,7 +123,7 @@ public class TacheServiceImpl implements TacheService {
             throw new IllegalArgumentException("La désignation ne peut pas etre nulle");
         }
         tache.setDesignation(dto.getTexte());
-
+        updateTacheNoti(tache,"La désignation de la tâche * "+tache.getDesignation()+"* a été mise à jour");
         return tacheRepository.save(tache);
     }
     @Override
@@ -117,6 +131,7 @@ public class TacheServiceImpl implements TacheService {
         Tache tache = retrieveTache(id);
 
         tache.setDescription(dto.getTexte().strip());
+        updateTacheNoti(tache,"La description de la tâche * "+tache.getDesignation()+"* a été mise à jour");
 
         return tacheRepository.save(tache);
     }
@@ -132,6 +147,8 @@ public class TacheServiceImpl implements TacheService {
         }
 
         tache.setDateDebut(nouvelleDateDebut);
+        updateTacheNoti(tache,"La date de début de la tâche * "+tache.getDesignation()+"* a été mise à jour");
+
         return tacheRepository.save(tache);
     }
 
@@ -147,6 +164,8 @@ public class TacheServiceImpl implements TacheService {
         }
 
         tache.setDateFin(nouvelleDateFin);
+        updateTacheNoti(tache,"La date de fin de la tâche * "+tache.getDesignation()+"* a été mise à jour");
+
         return tacheRepository.save(tache);
     }
 
@@ -221,6 +240,85 @@ public class TacheServiceImpl implements TacheService {
             throw new IllegalArgumentException("Une tâche avec cette désignation existe déjà dans cette activité");
         }
     }
-    
-    
+
+
+
+
+
+    private void sendAndPersistNotification(Utilisateur emetteur,
+                                            Utilisateur recepteur,
+                                            String message,
+                                            Long parentId,
+                                            TypeEvent eventType) {
+
+        NotificationDto dto = new NotificationDto()
+                .setEmetteur(emetteur)
+                .setReceveur(recepteur)
+                .setType(Type.TACHE)
+                .setMessage(message)
+                .setParentId(parentId)
+                .setEvent(eventType);
+
+        notificationService.create(dto);
+    }
+    private NotificationEvent buildTacheEvent(TypeEvent type, Tache tache, String message) {
+        return NotificationEvent.builder()
+                .type(type)
+                .message(message)
+                .entiteId(tache.getId())
+                .entiteType(Type.TACHE)
+                .timestamp(Instant.now())
+                .build();
+    }
+    private void createTacheNoti(List<Utilisateur> utilisateurs, Tache tache) {
+
+        if (utilisateurs == null || utilisateurs.isEmpty()) return;
+
+        String message = "Vous avez été associé au Tache : *" + tache.getDesignation() + "*";
+        NotificationEvent event = buildTacheEvent(TypeEvent.TACHE_ASSIGNEE, tache, message);
+
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
+
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, tache.getId(), TypeEvent.TACHE_ASSIGNEE);
+        });
+    }
+    private void updateTacheNoti(Tache tache, String message) {
+
+        if (tache.getEmails() == null || tache.getEmails().isEmpty()) return;
+
+        NotificationEvent event = buildTacheEvent(TypeEvent.TACHE_MODIFIEE, tache, message);
+
+        List<String> emails = tache.getEmails().stream()
+                .filter(EmailTache::isActive)
+                .map(EmailTache::getEmail)
+                .filter(Objects::nonNull)
+                .map(e -> e.strip().toLowerCase())
+                .distinct()
+                .toList();
+
+        if (emails.isEmpty()) return;
+
+        log.info("Mise à jour tache {} - {}", tache.getDesignation(), tache.getId());
+
+
+        List<Utilisateur> utilisateurs = utilisateurRepository.findByEmailIn(emails);
+
+        Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
+
+        utilisateurs.forEach(user -> {
+            String email = user.getEmail().strip().toLowerCase();
+
+            webSocketService.sendNotification(email, event);
+            sendAndPersistNotification(emetteur, user, message, tache.getId(), TypeEvent.TACHE_MODIFIEE);
+        });
+
+        webSocketService.sendTacheUpdate(tache.getId(), event);
+    }
+
+
+
 }

@@ -18,7 +18,7 @@ public interface WebSocketService {
 
     // ── Mise à jour live d'une tache (tous les membres) ──────────
     @Async
-    void sendTachesUpdate(Long tacheId, NotificationEvent event);
+    void sendTacheUpdate(Long tacheId, NotificationEvent event);
 
     // ── Message de chat privé ────────────────────────────────────
     void sendChatMessage(Long receiverId, ChatMessage message);

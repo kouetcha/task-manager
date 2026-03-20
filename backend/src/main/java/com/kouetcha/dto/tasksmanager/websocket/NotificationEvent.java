@@ -1,6 +1,7 @@
 package com.kouetcha.dto.tasksmanager.websocket;
 
 import com.kouetcha.model.enums.Type;
+import com.kouetcha.model.enums.TypeEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +14,10 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotificationEvent {
-    private String  type;       // "TACHE_ASSIGNEE", "PROJET_MODIFIE", etc.
+    private TypeEvent type;
     private String  message;
     private Long    entiteId;
-    private Type    entiteType; // "PROJET", "ACTIVITE", "TACHE"
+    private Type    entiteType;
     private String  emetteur;
     private Instant timestamp;
 }
