@@ -1,14 +1,17 @@
 package com.kouetcha.service.tasksmanager;
 
 import com.kouetcha.dto.tasksmanager.*;
+import com.kouetcha.dto.tasksmanager.websocket.NotificationEvent;
 import com.kouetcha.model.enums.Status;
 
+import com.kouetcha.model.enums.Type;
 import com.kouetcha.model.tasksmanager.EmailProjet;
 import com.kouetcha.model.tasksmanager.FichierEntityGestion;
 import com.kouetcha.model.tasksmanager.Projet;
 import com.kouetcha.model.utilisateur.Utilisateur;
 import com.kouetcha.repository.tasksmanager.ProjetRepository;
 import com.kouetcha.repository.utilisateur.UtilisateurRepository;
+import com.kouetcha.service.tasksmanager.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 @Slf4j
 @Transactional
@@ -30,6 +36,7 @@ public class ProjetServiceImpl implements ProjetService {
     private final UtilisateurRepository utilisateurRepository;
     private final FichierService<FichierEntityGestion, Projet> fichierService;
     private final EmailProjetServiceImpl emailProjetService;
+    private final WebSocketService webSocketService;
 
     @Override
     public Projet create(@Valid BaseEntityGestionDto dto) {
@@ -58,11 +65,12 @@ public class ProjetServiceImpl implements ProjetService {
 
         if(dto.getEmails()!=null&&!dto.getEmails().isEmpty())
         {  List<EmailProjet>emailProjets=new ArrayList<>();
+            List<String> emails=new ArrayList<>();
             log.info(String.valueOf(dto.getEmails()));
             for(String email:dto.getEmails()) {
             if(!email.isBlank())
-            { log.info("Email::");
-                log.info(email.strip());
+            {
+                emails.add(email.strip());
                 emailProjets.add(emailProjetService.addEmail(projet.getId(),email.strip()));
             }
         }
@@ -70,6 +78,10 @@ public class ProjetServiceImpl implements ProjetService {
 
                 projet.getEmails().addAll(emailProjets);
             }
+             Projet finalProjet = projet;
+            emails.forEach(((email) ->{
+                 createProjetNoti(email.strip(), finalProjet);
+             } ));
         }
         return projet;
     }
@@ -105,8 +117,48 @@ public class ProjetServiceImpl implements ProjetService {
             }
         }
         }
-
+        updateProjetNoti(projet);
         return projetRepository.save(projet);
+    }
+    private NotificationEvent buildProjetEvent(String type, Projet projet) {
+        return NotificationEvent.builder()
+                .type(type)
+                .message("Projet : *" + projet.getDesignation()+"* mise à jour")
+                .entiteId(projet.getId())
+                .entiteType(Type.PROJET)
+                .timestamp(Instant.now())
+                .build();
+    }
+    private void createProjetNoti(String email, Projet projet) {
+        NotificationEvent event = buildProjetEvent("PROJET_ASSIGNE", projet);
+
+        webSocketService.sendNotification(email, event);
+    }
+    private void updateProjetNoti(Projet projet) {
+
+        NotificationEvent event = buildProjetEvent("PROJET_MODIFIE", projet);
+        log.info("Emails:: "+projet.getEmails());
+
+        List<String> emails = projet.getEmails().stream()
+                .filter(EmailProjet::isActive) // important
+                .map(EmailProjet::getEmail)
+                .filter(Objects::nonNull)
+                .map(String::toLowerCase)
+                .distinct()
+                .toList();
+
+        if (emails.isEmpty()) return;
+
+
+
+        emails.forEach(email ->
+                        webSocketService.sendNotification(email.strip(), event)
+                );
+
+        log.info("Mise à jour du projet:: {} {}", projet.getDesignation(), projet.getId());
+
+        // 🔥 broadcast projet
+        webSocketService.sendProjetUpdate(projet.getId(), event);
     }
 
     @Override
@@ -118,7 +170,9 @@ public class ProjetServiceImpl implements ProjetService {
         }
         projet.setDesignation(dto.getTexte());
 
-        return projetRepository.save(projet);
+        projet= projetRepository.save(projet);
+        updateProjetNoti(projet);
+        return projet;
     }
     @Override
     public Projet updateDescription(Long id, @Valid TexteDto dto) {
@@ -126,7 +180,9 @@ public class ProjetServiceImpl implements ProjetService {
 
         projet.setDescription(dto.getTexte().strip());
 
-        return projetRepository.save(projet);
+        projet= projetRepository.save(projet);
+        updateProjetNoti(projet);
+        return projet;
     }
     @Override
     public Projet updateDateDebut(Long id, @Valid DateDto dto) {
@@ -140,7 +196,10 @@ public class ProjetServiceImpl implements ProjetService {
         }
 
         projet.setDateDebut(nouvelleDateDebut);
-        return projetRepository.save(projet);
+
+        projet= projetRepository.save(projet);
+        updateProjetNoti(projet);
+        return projet;
     }
 
     @Override
@@ -155,7 +214,9 @@ public class ProjetServiceImpl implements ProjetService {
         }
 
         projet.setDateFin(nouvelleDateFin);
-        return projetRepository.save(projet);
+        projet= projetRepository.save(projet);
+        updateProjetNoti(projet);
+        return projet;
     }
     @Override
     public void delete(Long id) {

@@ -82,13 +82,15 @@ public interface ActiviteRepository extends JpaRepository<Activite, Long> {
     List<BaseEntityDto> findActiveByEmail(@Param("email") String email);
 
     @Query("""
-        SELECT COUNT(DISTINCT a)
-        FROM Activite a
-        LEFT JOIN a.emails e
-        WHERE (LOWER(e.email) = LOWER(:email) OR LOWER(a.createur.email) = LOWER(:email))
-        AND e.active=true
-        AND a.status IN (com.kouetcha.model.enums.Status.EN_ATTENTE, com.kouetcha.model.enums.Status.EN_COURS)
-    """)
+    SELECT COUNT(DISTINCT a)
+    FROM Activite a
+    LEFT JOIN a.emails e
+    WHERE (
+        (e IS NOT NULL AND e.active = true AND LOWER(e.email) = LOWER(:email))
+        OR LOWER(a.createur.email) = LOWER(:email)
+    )
+    AND a.status IN (com.kouetcha.model.enums.Status.EN_ATTENTE, com.kouetcha.model.enums.Status.EN_COURS)
+""")
     long countActiveByEmail(@Param("email") String email);
 
 

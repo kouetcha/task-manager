@@ -1,5 +1,5 @@
 // src/app/gestion_de_taches/pages/projets/projets.component.ts
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateDto, EditableDto, EmailDto, FichierInfo, Projet } from '../../interfaces/base-entity-gestion';
@@ -10,7 +10,7 @@ import { ConfirmationDialog } from '../../components/confirmation-dialog/confirm
 import { MaterialModule } from '../../material.module';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { catchError, debounceTime, distinctUntilChanged, finalize, of, Subject, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, of, Subject, Subscription, switchMap } from 'rxjs';
 import { EditEmailDialog, EditEmailDialogData } from '../../components/cards/edit-email-dialog';
 import { ProjectCard } from '../../components/cards/project-card/project-card';
 import { SafeResourceUrl } from '@angular/platform-browser';
@@ -20,6 +20,7 @@ import { NotificationService } from '../../services/notification.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Page } from '../../interfaces/generals';
 import { User } from '../../models/user';
+import { WebSocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-projets',
@@ -126,7 +127,17 @@ export class Projets implements OnInit {
     this.currentPage = event.pageIndex;
     this.loadProjets(event.pageIndex);
   }
-
+  
+    oneProjetUpdated(projet: Projet) {
+      if (!projet) return;
+      const projetsCopy = [...this.projets];
+      const index = projetsCopy.findIndex(p => p.id === projet.id);
+      if (index !== -1) {
+        projetsCopy[index] = projet;
+        this.filteredProjets = projetsCopy;
+      } 
+      
+    }
   // ─── Filtres ─────────────────────────────────────────────────────────────────
 
   filterProjets(): void {

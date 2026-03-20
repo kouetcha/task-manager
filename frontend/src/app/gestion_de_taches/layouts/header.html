@@ -103,7 +103,7 @@
           [src]="user?.profilePictureLink||'' "
           [alt]="user?.prenom"
           class="h-full w-full object-cover"
-          (error)="onAvatarError($event)">
+          (error)="onAvatarError()">
       } @else if (user?.prenom && user?.nom) {
         <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">
           {{ user?.prenom?.[0] }}{{ user?.nom?.[0] }}

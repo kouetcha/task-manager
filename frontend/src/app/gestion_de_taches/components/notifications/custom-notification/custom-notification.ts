@@ -34,7 +34,7 @@ export class CustomNotification implements OnInit, OnDestroy {
   }
 
   getLabel(type: string): string {
-    return ({ success: 'Succès', error: 'Erreur', warning: 'Attention', info: 'Info' } as Record<string, string>)[type] ?? type;
+    return ({ success: 'Succès', error: 'Erreur', warning: 'Attention', info: 'Info',message:'message' } as Record<string, string>)[type] ?? type;
   }
 
   trackById(_: number, n: NotificationItem): string { return n.id; }

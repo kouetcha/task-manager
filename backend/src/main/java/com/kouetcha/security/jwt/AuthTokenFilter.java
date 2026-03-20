@@ -42,7 +42,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtUtils.getAuthentication(jwt);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 UserContext.setCurrentUser(username);
-                System.out.println("Utilisateur Email::"+username);
+                //System.out.println("Utilisateur Email::"+username);
                 Utilisateur utilisateur=utilisateurRepository.findByEmail(username).get();
                 UserContext.setUtilisaeurConnecte(utilisateur);
             }

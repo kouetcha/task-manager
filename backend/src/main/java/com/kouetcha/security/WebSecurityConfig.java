@@ -72,6 +72,7 @@ public class WebSecurityConfig {
                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 new AntPathRequestMatcher("/utilisateur/connexion/**"),
+                                new AntPathRequestMatcher("/ws/**"),
                                 new AntPathRequestMatcher("/utilisateur/image/**"),
                                 new AntPathRequestMatcher("/utilisateur/create/**"),
                                 new AntPathRequestMatcher("/fichiers-activite/**/download/**"),

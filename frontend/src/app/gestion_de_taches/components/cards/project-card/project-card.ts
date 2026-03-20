@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { EditableDto, EmailDto, FichierInfo, Projet } from '../../../interfaces/base-entity-gestion';
 import { FileList } from '../../files/file-list/file-list';
 import { MaterialModule } from '../../../material.module';
@@ -12,6 +12,9 @@ import { EditableText } from '../editable-text/editable-text';
 import { NotificationService } from '../../../services/notification.service';
 import { OnlyOfficeViewer } from '../onlyoffice-viewer/onlyoffice-viewer';
 import { User } from '../../../models/user';
+import { ProjetService } from '../../../services/projet-service';
+import { WebSocketService } from '../../../services/websocket.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-project-card',
@@ -24,6 +27,7 @@ export class ProjectCard {
   @Input() user!: User;
   @Output() edit = new EventEmitter<Projet>();
   @Output() delete = new EventEmitter<Projet>();
+  @Output() updateProjet = new EventEmitter<Projet>();
   @Output() ajoutFichiers = new EventEmitter<File[]>();
   @Output() editableChamps=new EventEmitter<EditableDto>
   @Output() editEmail = new EventEmitter<EmailDto>(); // pour remonter l'événement d'édition d'email
@@ -35,10 +39,37 @@ export class ProjectCard {
   onlyOfficeFileUrl: string | null = null;
   fichierInfo:FichierInfo|null=null;
   currentDocumentId?: number;
-  constructor(
-     private notification: NotificationService
-  ){
+  
+  // ── Services ─────────────────────────────────────────────────
+  private projetService  = inject(ProjetService);
+  private notification   = inject(NotificationService);
+  private wsService      = inject(WebSocketService);
+  private subs           = new Subscription();
 
+
+    // ── Lifecycle ────────────────────────────────────────────────
+  ngOnInit(): void {
+    this.loadProjet();
+
+    // Écoute les mises à jour WebSocket de ce projet
+    const sub = this.wsService
+      .onProjetUpdate(this.projet.id)
+      .subscribe(event => {
+        console.log('📦 Mise à jour projet reçue :', event);
+        if (event.type === 'PROJET_MODIFIE') {
+          this.loadProjet();
+          this.updateProjet.emit(this.projet);
+        }
+      });
+
+    this.subs.add(sub);
+  }
+    // ── Chargement ───────────────────────────────────────────────
+  loadProjet(): void {
+    this.projetService.getProjetById(this.projet.id).subscribe({
+      next:  data  => this.projet = data,
+      error: err   => console.error('Erreur chargement projet', err)
+    });
   }
   // Fonctions pour les statuts (à adapter selon votre logique métier)
   getStatusLabel(status: string): string {

@@ -80,13 +80,17 @@ public interface TacheRepository extends JpaRepository<Tache, Long> {
 
     // Count des tâches actives
     @Query("""
-        SELECT COUNT(DISTINCT t)
-        FROM Tache t
-        LEFT JOIN t.emails e
-        WHERE (LOWER(e.email) = LOWER(:email) OR LOWER(t.createur.email) = LOWER(:email))
-        AND e.active=true
-        AND t.status IN (com.kouetcha.model.enums.Status.EN_ATTENTE, com.kouetcha.model.enums.Status.EN_COURS)
-    """)
+    SELECT COUNT(t)
+    FROM Tache t
+    WHERE (
+        LOWER(t.createur.email) = LOWER(:email)
+        OR EXISTS (
+            SELECT 1 FROM t.emails e
+            WHERE e.active = true AND LOWER(e.email) = LOWER(:email)
+        )
+    )
+    AND t.status IN (com.kouetcha.model.enums.Status.EN_ATTENTE, com.kouetcha.model.enums.Status.EN_COURS)
+""")
     long countActiveByEmail(@Param("email") String email);
 
     Page<Tache> findDistinctByEmailsEmailIgnoreCaseAndEmailsActiveIsTrueOrCreateurEmail(String email, String email1, Pageable pageable);

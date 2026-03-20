@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,10 +14,10 @@ import { SidebarService } from '../services/SidebarService';
 import { AuthService } from '../services/AuthService';
 import { ThemeMode, ThemeService } from '../services/ThemeService';
 import { User } from '../models/user';
-import { Subscription } from 'rxjs';
-
-
-
+import { Subject, takeUntil, filter, switchMap } from 'rxjs';
+import { WebSocketService } from '../services/websocket.service';
+import { NotificationEvent } from '../services/websocket.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-header',
@@ -18,65 +26,90 @@ import { Subscription } from 'rxjs';
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class Header  implements OnInit , OnDestroy{
-   user:User|null=null;
-    private userSubscription: Subscription = new Subscription();
-  ngOnInit(): void {
-  this.userSubscription = this.authService.user$.subscribe((user)=>{
-      this.user = user;
-      this.cdr.detectChanges()
-   })
-  }
-   ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
-  }
+export class Header implements OnInit, OnDestroy {
+
+  user: User | null = null;
+
+  private destroy$ = new Subject<void>();
+
   sidebarService = inject(SidebarService);
-  authService = inject(AuthService);
-  themeService = inject(ThemeService);
-  router=inject(Router);
-  cdr=inject(ChangeDetectorRef)
+  authService    = inject(AuthService);
+  themeService   = inject(ThemeService);
+  router         = inject(Router);
+  wsService      = inject(WebSocketService);
+  popService     = inject(NotificationService);
 
-
-  isUserMenuOpen = false;
+  isUserMenuOpen  = false;
   isThemeMenuOpen = false;
 
-  @ViewChild('userMenuContainer') userMenuContainer!: ElementRef;
+  @ViewChild('userMenuContainer')  userMenuContainer!:  ElementRef;
   @ViewChild('themeMenuContainer') themeMenuContainer!: ElementRef;
 
-  toggleUserMenu() {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
+  ngOnInit(): void {
+
+
+    this.authService.user$
+      .pipe(takeUntil(this.destroy$), filter(user => !!user))
+      .subscribe(user => this.user = user);
+
+  
+    this.authService.user$.pipe(
+      takeUntil(this.destroy$),
+      filter(user => !!user)
+    ).subscribe(() => {
+      this.wsService.connect();
+    });
+
+   
+    this.wsService.connected$.pipe(
+      takeUntil(this.destroy$),
+      filter(connected => connected),        
+      switchMap(() => this.wsService.onNotification()) 
+    ).subscribe({
+      next:  (event: NotificationEvent) => {
+        console.log('🔔 Notification reçue :', event);
+        this.popService.message(event.message);
+        
+      },
+      error: err => console.error('❌ Erreur WS :', err)
+    });
   }
 
-  toggleThemeMenu() {
-    this.isThemeMenuOpen = !this.isThemeMenuOpen;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.wsService.disconnect();
   }
 
-  setTheme(mode: ThemeMode) {
+  toggleUserMenu():  void { this.isUserMenuOpen  = !this.isUserMenuOpen;  }
+  toggleThemeMenu(): void { this.isThemeMenuOpen = !this.isThemeMenuOpen; }
+
+  setTheme(mode: ThemeMode): void {
     this.themeService.setTheme(mode);
     this.isThemeMenuOpen = false;
   }
 
-  // Fermer les menus si on clique à l'extérieur
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (this.isUserMenuOpen && this.userMenuContainer && !this.userMenuContainer.nativeElement.contains(event.target)) {
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isUserMenuOpen &&
+        this.userMenuContainer &&
+        !this.userMenuContainer.nativeElement.contains(event.target)) {
       this.isUserMenuOpen = false;
     }
-    if (this.isThemeMenuOpen && this.themeMenuContainer && !this.themeMenuContainer.nativeElement.contains(event.target)) {
+    if (this.isThemeMenuOpen &&
+        this.themeMenuContainer &&
+        !this.themeMenuContainer.nativeElement.contains(event.target)) {
       this.isThemeMenuOpen = false;
     }
   }
-onAvatarError(event: Event): void {
-  if (this.user) {
-    this.user = { ...this.user, profilePictureLink: '' };
+
+  onAvatarError(): void {
+    if (this.user) this.user = { ...this.user, profilePictureLink: '' };
   }
-}
-  logout() {
-    // Implémentez votre logique de déconnexion
-    console.log('Déconnexion');
-    this.authService.logout()
-     this.router.navigate(['/login']);
+
+  logout(): void {
+    this.wsService.disconnect();
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -1,10 +1,17 @@
 package com.kouetcha.service.tasksmanager;
 
+import com.kouetcha.dto.tasksmanager.websocket.NotificationEvent;
+import com.kouetcha.model.enums.Type;
 import com.kouetcha.model.tasksmanager.EmailProjet;
 import com.kouetcha.model.tasksmanager.Projet;
+import com.kouetcha.model.tasksmanager.Tache;
 import com.kouetcha.repository.tasksmanager.EmailProjetRepository;
 import com.kouetcha.repository.tasksmanager.ProjetRepository;
+import com.kouetcha.service.tasksmanager.websocket.WebSocketService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -13,12 +20,14 @@ public class EmailProjetServiceImpl
 
     private final EmailProjetRepository emailProjetRepository;
     private final ProjetRepository projetRepository;
+    private final WebSocketService webSocketService;
 
     public EmailProjetServiceImpl(EmailProjetRepository emailProjetRepository,
-                                  ProjetRepository projetRepository) {
+                                  ProjetRepository projetRepository, WebSocketService webSocketService) {
         super(emailProjetRepository, projetRepository);
         this.emailProjetRepository = emailProjetRepository;
         this.projetRepository = projetRepository;
+        this.webSocketService = webSocketService;
     }
 
     @Override
@@ -38,6 +47,7 @@ public class EmailProjetServiceImpl
 
         return emailRepository.save(email);
     }
+
 
 
     @Override

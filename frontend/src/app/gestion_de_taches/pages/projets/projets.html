@@ -52,6 +52,7 @@
             [projet]="projet"
             (edit)="openEditDialog($event)"
             (delete)="openDeleteDialog($event)"
+            (updateProjet)="oneProjetUpdated($event)"
             (editEmail)="onEditEmail($event)"
             (ajoutFichiers)="onAddFiles(projet, $event)"
             (editableChamps)="onApplieELementChange($event)">

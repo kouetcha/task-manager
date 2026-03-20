@@ -1,11 +1,13 @@
 package com.kouetcha.service.tasksmanager;
 
 import com.kouetcha.model.base.BaseEmail;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Transactional
+
 public abstract class AbstractEmailService<E extends BaseEmail<T>, T>
         implements EmailService<E, T> {
 

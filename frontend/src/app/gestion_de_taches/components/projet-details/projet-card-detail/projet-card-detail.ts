@@ -1,16 +1,17 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, Output } from '@angular/core';
 import { EmailList } from '../../lists/email-list/email-list';
 import { EditableDto, EmailDto, FichierInfo, Projet } from '../../../interfaces/base-entity-gestion';
 import { MaterialModule } from '../../../material.module';
 import { CommonModule } from '@angular/common';
 import { FileList } from '../../files/file-list/file-list';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ProjetService } from '../../../services/projet-service';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { NotificationService } from '../../../services/notification.service';
 import { EditableDate } from '../../cards/editable-date/editable-date';
 import { EditableText } from '../../cards/editable-text/editable-text';
 import { CommentaireList } from '../../commentaires/commentaire-list/commentaire-list';
+import { WebSocketService } from '../../../services/websocket.service';
 
 @Component({
   selector: 'app-projet-card-detail',
@@ -29,6 +30,7 @@ export class ProjetCardDetail {
   pdfPreviewUrl: SafeResourceUrl|string  ='';
   @Output() editableChamps=new EventEmitter<EditableDto>
    @Output() ajoutFichiers = new EventEmitter<File[]>();
+
   fileName: string = '';
   isOnlyOfficeModalOpen = false;
   onlyOfficeFileUrl: string | null = null;
@@ -39,7 +41,8 @@ export class ProjetCardDetail {
    @Input() files: FichierInfo[] = []; 
    isMobile = window.innerWidth < 1024;
 
-
+private wsService = inject(WebSocketService);
+private subs      = new Subscription();
 
 
     constructor(
@@ -49,6 +52,40 @@ export class ProjetCardDetail {
 
   ) {
   
+  }
+
+  
+ngOnInit(): void {
+ 
+  const sub = this.wsService.onProjetUpdate(this.projet.id).subscribe(event => {
+    console.log('📦 Mise à jour projet reçue :', event);
+
+
+    switch (event.type) {
+      case 'PROJET_MODIFIE':
+    
+        this.loadProjet();
+        break;
+      default:
+        console.warn('Type notification inconnu :', event.type);
+    }
+  });
+
+  this.subs.add(sub);
+
+  this.loadProjet();
+}
+
+  loadProjet(): void {
+    this.projetService.getProjetById(this.projet.id).subscribe({
+      next: (data) => {
+        this.projet=data;
+      },
+      error: (err) => {
+        console.error('Erreur chargement projet', err);
+       
+      }
+    });
   }
   isCreateur():boolean{
    return this.currentUserId===this.projet.createur?.id

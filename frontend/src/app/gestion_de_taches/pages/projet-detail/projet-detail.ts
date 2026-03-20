@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject, signal } from '@angular/core';
 import { EditableDto, FichierInfo, Projet } from '../../interfaces/base-entity-gestion';
 import { Activite } from '../../models/activite.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,12 +14,13 @@ import { OnlyOfficeViewer } from '../../components/cards/onlyoffice-viewer/onlyo
 import { PdfModal } from '../../components/cards/pdf-modal/pdf-modal';
 import { MaterialModule } from '../../material.module';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, Subscription, switchMap } from 'rxjs';
 import { ActiviteDetail } from '../../components/activite-detail/activite-detail';
 import { ActiviteSection } from '../../components/activite-section/activite-section';
 import { TacheSection } from '../../components/tache-section/tache-section';
 import { User } from '../../models/user';
 import { Tache } from '../../models/tache.model';
+import { WebSocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-projet-detail',
@@ -49,6 +50,8 @@ private user = signal<User | null>(null);
 getUser(){
   return this.user();
 }
+private wsService = inject(WebSocketService);
+private subs      = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -69,15 +72,34 @@ getUser(){
     }});
   }
 
-  ngOnInit(): void {
-   
-    
-  
+ngOnInit(): void {
+  // Récupération de l'id du projet depuis la route
+  this.projetId = +this.route.snapshot.paramMap.get('id')!;
 
-     this.projetId = +this.route.snapshot.paramMap.get('id')!;
-    this.loadProjet();
+  // Souscription aux mises à jour du projet via WebSocket
+  const sub = this.wsService.onProjetUpdate(this.projetId).subscribe(event => {
+    console.log('📦 Mise à jour projet reçue :', event);
 
-  }
+    // Affichage notification
+    //this.notification.message(event.message);
+
+    // Actions selon le type de notification
+    switch (event.type) {
+      case 'PROJET_MODIFIE':
+        // Recharge le projet si le projet lui-même est modifié
+        this.loadProjet();
+        break;
+      default:
+        console.warn('Type notification inconnu :', event.type);
+    }
+  });
+
+  // Ajout à la collection de subscriptions pour cleanup
+  this.subs.add(sub);
+
+  // Chargement initial du projet
+  this.loadProjet();
+}
   getCurrentUserId(){
     return this.currentUserId;
   }
