@@ -7,16 +7,16 @@
       <mat-icon>menu</mat-icon>
     </button>
 
-    <!-- Titre de la page (visible uniquement sur mobile si besoin) -->
+    <!-- Titre de la page -->
     <div class="flex-1 lg:ml-0">
       <h1 class="text-sm sm:text-base lg:text-xl font-semibold text-gray-900 dark:text-white truncate">
-        <!-- Tu peux ajouter un titre dynamique ici si besoin -->
+        <!-- Titre dynamique -->
       </h1>
     </div>
 
     <!-- Actions du header -->
     <div class="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
-      <!-- Barre de recherche - cachée sur très petit écran, visible sur sm -->
+      <!-- Barre de recherche - desktop -->
       <div class="hidden sm:block">
         <div class="relative">
           <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-base sm:text-xl">search</mat-icon>
@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <!-- Version mobile : bouton recherche simplifié (optionnel) -->
+      <!-- Version mobile : bouton recherche -->
       <button class="sm:hidden rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
         (click)="toggleMobileSearch()">
         <mat-icon class="text-base">search</mat-icon>
@@ -63,7 +63,7 @@
         }
       </div>
 
-      <!-- 🔔 Notifications -->
+      <!-- 🔔 Notifications - Version corrigée -->
       <div class="relative" #notifContainer>
         <button (click)="toggleNotifDropdown()"
           class="relative rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -77,17 +77,22 @@
         </button>
 
         @if (isNotifOpen) {
-          <div class="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl
-                      border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+          <!-- Correction : Positionnement adaptatif -->
+          <div class="fixed sm:absolute sm:right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 left-4 sm:left-auto 
+                      bg-white dark:bg-gray-800 rounded-xl shadow-xl
+                      border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+               style="top: 4rem;">
+            
             <!-- Header dropdown -->
-          @if(hasUnseen())
-            {<div class="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100">Notifications</h3>
-              <button (click)="markAllAsSeen()"
-                class="text-xs text-indigo-500 hover:underline cursor-pointer">
-                Tout marquer lu
-              </button>
-            </div>}
+            @if(hasUnseen()) {
+              <div class="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100">Notifications</h3>
+                <button (click)="markAllAsSeen()"
+                  class="text-xs text-indigo-500 hover:underline cursor-pointer">
+                  Tout marquer lu
+                </button>
+              </div>
+            }
 
             <!-- Liste -->
             <div class="max-h-64 sm:max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
@@ -95,7 +100,8 @@
                 @for (notif of notifications; track notif.id) {
                   <div class="flex items-start gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                        [class.bg-blue-50]="!notif.seen"
-                       [class.dark:bg-blue-900/20]="!notif.seen">
+                       [class.dark:bg-blue-900/20]="!notif.seen"
+                       (click)="goToNotification(notif)">
                     <span class="mt-1.5 h-1.5 w-1.5 min-w-[6px] sm:min-w-[8px] rounded-full"
                           [class.bg-indigo-500]="!notif.seen"
                           [class.bg-transparent]="notif.seen">
@@ -145,7 +151,9 @@
         </button>
 
         @if (isUserMenuOpen) {
-          <div class="absolute right-0 mt-2 w-44 sm:w-48 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50">
+          <!-- Correction pour le menu utilisateur aussi -->
+          <div class="fixed sm:absolute sm:right-0 mt-2 w-44 sm:w-48 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-white/10 z-50"
+               style="top: 4rem; right: 1rem;">
             <div class="px-3 sm:px-4 py-2 border-b border-gray-100 dark:border-gray-700 sm:hidden">
               <p class="text-xs font-medium text-gray-900 dark:text-white truncate">{{ user?.prenom }} {{ user?.nom }}</p>
               <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">{{ user?.email }}</p>
@@ -163,7 +171,7 @@
   </div>
 </header>
 
-<!-- Overlay pour la recherche mobile (optionnel) -->
+<!-- Overlay pour la recherche mobile -->
 @if (isMobileSearchOpen) {
   <div class="fixed inset-0 z-40 bg-black/50" (click)="closeMobileSearch()">
     <div class="bg-white dark:bg-gray-800 p-4 shadow-lg" (click)="$event.stopPropagation()">

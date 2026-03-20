@@ -20,7 +20,7 @@ import { WebSocketService } from '../services/websocket.service';
 import { NotificationEvent } from '../services/websocket.service';
 import { NotificationService } from '../services/notification.service';
 import { NotificationsService } from '../services/notifications.service';
-import { Notification } from '../models/notification.model';
+import { Notification, NotificationEventType, NotificationType } from '../models/notification.model';
 
 @Component({
   selector: 'app-header',
@@ -105,6 +105,25 @@ export class Header implements OnInit, OnDestroy {
   }
  hasUnseen(): boolean {
   return this.notifications.some(noti => !noti.seen);
+}
+goToNotification(notification: Notification): void {
+  this.isNotifOpen = false;
+  
+ 
+  switch (notification.type) {
+    case NotificationType.PROJET:
+        this.router.navigate(['/app/projets',notification.parentId]);
+        break
+    case NotificationType.ACTIVITE:
+        this.router.navigate(['/app/activites',notification.parentId])
+      break;
+    case NotificationType.TACHE:
+        this.router.navigate(['/app/taches',notification.parentId])
+      break;  
+    default:
+      break;
+  }
+ 
 }
   ngOnDestroy(): void {
     this.destroy$.next();
