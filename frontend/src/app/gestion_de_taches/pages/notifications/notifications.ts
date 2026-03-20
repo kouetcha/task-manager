@@ -53,6 +53,7 @@ export class Notifications implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPage();
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {

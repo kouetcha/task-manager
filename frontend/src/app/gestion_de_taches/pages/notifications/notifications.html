@@ -1,20 +1,19 @@
-<div class="max-w-2xl mx-auto px-4 py-8">
-
+<div class="max-w-2xl mx-auto px-2 sm:px-4 py-3 sm:py-8">
   <!-- En-tête -->
   @if(hasUnseen()) {
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Notifications</h1>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-lg sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Notifications</h1>
       <button (click)="markAllAsSeen()"
-              class="text-sm text-indigo-500 hover:underline">
+              class="text-xs sm:text-sm text-indigo-500 hover:underline">
         Tout marquer lu
       </button>
     </div>
   }
 
   <!-- Onglets -->
-  <div class="flex gap-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+  <div class="flex gap-3 sm:gap-4 mb-3 sm:mb-4 border-b border-gray-200 dark:border-gray-700">
     <button (click)="setFilter('all')"
-            class="pb-2 text-sm font-medium transition-colors"
+            class="pb-2 text-xs sm:text-sm font-medium transition-colors"
             [class.border-b-2]="filter === 'all'"
             [class.border-indigo-500]="filter === 'all'"
             [class.text-indigo-600]="filter === 'all'"
@@ -22,7 +21,7 @@
       Toutes
     </button>
     <button (click)="setFilter('unseen')"
-            class="pb-2 text-sm font-medium transition-colors"
+            class="pb-2 text-xs sm:text-sm font-medium transition-colors"
             [class.border-b-2]="filter === 'unseen'"
             [class.border-indigo-500]="filter === 'unseen'"
             [class.text-indigo-600]="filter === 'unseen'"
@@ -33,23 +32,23 @@
 
   <!-- Barre d'actions (visible si sélection active) -->
   @if (someSelected) {
-    <div class="flex items-center justify-between mb-3 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20
+    <div class="flex items-center justify-between mb-2 sm:mb-3 px-3 sm:px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20
                 rounded-lg border border-indigo-200 dark:border-indigo-700">
-      <span class="text-sm text-indigo-700 dark:text-indigo-300">
+      <span class="text-xs sm:text-sm text-indigo-700 dark:text-indigo-300">
         {{ selectedIds.size }} sélectionnée(s)
       </span>
       <div class="flex gap-2">
-
-      @if(hasUnseen())
-       { <button (click)="markSelectedAsSeen()"
-                [disabled]="selectedUnseenIds.length === 0"
-                class="text-sm text-indigo-600 dark:text-indigo-400 font-medium
-                       hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
-          Marquer comme lu
-        </button>}
+        @if(hasUnseen()) {
+          <button (click)="markSelectedAsSeen()"
+                  [disabled]="selectedUnseenIds.length === 0"
+                  class="text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 font-medium
+                         hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
+            Marquer comme lu
+          </button>
+        }
         <button (click)="deleteSelected()"
                 [disabled]="selectedIds.size === 0"
-                class="text-sm text-red-600 dark:text-red-400 font-medium
+                class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium
                        hover:underline disabled:opacity-40 disabled:cursor-not-allowed">
           Supprimer
         </button>
@@ -59,31 +58,29 @@
 
   <!-- Loading -->
   @if (isLoading) {
-    <div class="flex justify-center py-12">
+    <div class="flex justify-center py-8 sm:py-12">
       <mat-icon class="animate-spin text-gray-400">autorenew</mat-icon>
     </div>
   }
 
   <!-- Liste -->
   @if (!isLoading) {
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-
+    <div class="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       @if (notifications.length > 0) {
-
         <!-- Ligne "Sélectionner tout" -->
-        <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700
+        <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-100 dark:border-gray-700
                     bg-gray-50 dark:bg-gray-700/50">
           <input type="checkbox"
                  [checked]="allSelected"
                  (change)="toggleAll()"
-                 class="h-4 w-4 rounded border-gray-300 text-indigo-600
+                 class="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-indigo-600
                         focus:ring-indigo-500 cursor-pointer">
           <span class="text-xs text-gray-500 dark:text-gray-400">Tout sélectionner</span>
         </div>
 
         <!-- Items -->
         @for (notif of notifications; track notif.id) {
-          <div class="flex items-start gap-3 px-4 py-4 border-b border-gray-100 dark:border-gray-700
+          <div class="flex items-start gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-700
                       last:border-b-0 transition-colors"
                [class.bg-blue-50]="!notif.seen && !selectedIds.has(notif.id)"
                [class.dark:bg-blue-900/10]="!notif.seen && !selectedIds.has(notif.id)"
@@ -94,53 +91,53 @@
             <input type="checkbox"
                    [checked]="selectedIds.has(notif.id)"
                    (change)="toggleOne(notif.id)"
-                   class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600
+                   class="mt-0.5 sm:mt-1 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-indigo-600
                           focus:ring-indigo-500 cursor-pointer shrink-0">
 
             <!-- Point non lu -->
-            <span class="mt-2 h-2 w-2 min-w-[8px] rounded-full shrink-0"
+            <span class="mt-1 sm:mt-2 h-1.5 w-1.5 sm:h-2 sm:w-2 min-w-[6px] sm:min-w-[8px] rounded-full shrink-0"
                   [class.bg-indigo-500]="!notif.seen"
                   [class.bg-transparent]="notif.seen">
             </span>
 
             <!-- Contenu -->
-            <div class="flex flex-col gap-1 flex-1">
-              <p class="text-sm text-gray-800 dark:text-gray-100">{{ notif.message }}</p>
-              <span class="text-xs text-gray-400">{{ notif.date | date:'dd/MM/yyyy HH:mm' }}</span>
+            <div class="flex flex-col gap-0.5 sm:gap-1 flex-1 min-w-0">
+              <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-100 break-words leading-relaxed">
+                {{ notif.message }}
+              </p>
+              <span class="text-[10px] sm:text-xs text-gray-400">{{ notif.date | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
 
-            <!-- Bouton supprimer individuel (optionnel) -->
+            <!-- Bouton supprimer individuel -->
             <button (click)="deleteOne(notif.id)"
-                    class="opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg transition-all"
+                    class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-lg transition-all shrink-0"
                     title="Supprimer">
-              <mat-icon class="text-gray-400 text-base">delete_outline</mat-icon>
+              <mat-icon class="text-gray-400 text-sm sm:text-base">delete_outline</mat-icon>
             </button>
           </div>
         }
-
       } @else {
-        <p class="text-center text-sm text-gray-400 py-12">Aucune notification</p>
+        <p class="text-center text-xs sm:text-sm text-gray-400 py-8 sm:py-12">Aucune notification</p>
       }
     </div>
 
     <!-- Pagination -->
-    <div class="flex items-center justify-center gap-4 mt-6">
+    <div class="flex items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
       <button (click)="prevPage()" [disabled]="page === 0"
-              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
-                     text-sm text-gray-700 dark:text-gray-300
+              class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600
+                     text-xs sm:text-sm text-gray-700 dark:text-gray-300
                      hover:bg-gray-50 dark:hover:bg-gray-700
                      disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
         ← Précédent
       </button>
-      <span class="text-sm text-gray-500 dark:text-gray-400">Page {{ page + 1 }}</span>
+      <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Page {{ page + 1 }}</span>
       <button (click)="nextPage()" [disabled]="isLastPage"
-              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
-                     text-sm text-gray-700 dark:text-gray-300
+              class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600
+                     text-xs sm:text-sm text-gray-700 dark:text-gray-300
                      hover:bg-gray-50 dark:hover:bg-gray-700
                      disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
         Suivant →
       </button>
     </div>
   }
-
 </div>
