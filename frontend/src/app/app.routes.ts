@@ -23,6 +23,7 @@ import { AuthGuard } from './gestion_de_taches/auth/auth.guard';
 import { Calendar } from './gestion_de_taches/pages/calendar/calendar';
 import { Settings } from './gestion_de_taches/pages/settings/settings';
 import { Profil } from './gestion_de_taches/pages/profil/profil';
+import { Notifications } from './gestion_de_taches/pages/notifications/notifications';
 
 
 export const routes: Routes = [
@@ -50,7 +51,8 @@ export const routes: Routes = [
       {path:'taches/:id', component:TacheDetails},
       {path:'calendar', component:Calendar},
       {path:'settings', component:Settings},
-      {path:'profile', component:Profil}
+      {path:'profile', component:Profil},
+      {path:'notifications',component:Notifications}
      
      
     ],

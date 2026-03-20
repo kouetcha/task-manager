@@ -15,6 +15,12 @@ public interface NotificationService {
 
     Page<Notification> findNotification(Long userId, Pageable pageable);
 
+    void markAsSeen(List<Long> ids);
+
+    void deletes(List<Long> ids);
+
+    void markAllAsSeen();
+
     List<Notification> findNotificationNoSeen(Long userId);
 
     long countNotificationNoSeen(Long userId);

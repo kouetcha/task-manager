@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Page } from '../interfaces/generals';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Notification } from '../models/notification.model';
@@ -9,6 +9,7 @@ import { Notification } from '../models/notification.model';
   providedIn: 'root',
 })
 export class NotificationsService {
+ 
 
   private apiUrl = environment.API_URL + '/tasksmanager/notifications';
 
@@ -26,7 +27,18 @@ export class NotificationsService {
       this.unseenCount$.next(count);
     });
   }
+markAsSeen(ids: number[]): Observable<void> {
+  return this.http.patch<void>(`${this.apiUrl}/seen`, ids);
+}
+deleteNotification(ids: number[]): Observable<void> {
+  return this.http.patch<void>(`${this.apiUrl}/delete`, ids);
+}
 
+markAllAsSeen(): Observable<void> {
+  return this.http.patch<void>(`${this.apiUrl}/seen/all`, {}).pipe(
+    tap(() => this.unseenCount$.next(0))
+  );
+}
   // 🔹 Helper params (DRY)
   private buildParams(page: number, size: number, sort: string): HttpParams {
     return new HttpParams()

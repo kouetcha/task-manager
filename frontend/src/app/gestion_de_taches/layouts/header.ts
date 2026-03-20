@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -19,6 +20,7 @@ import { WebSocketService } from '../services/websocket.service';
 import { NotificationEvent } from '../services/websocket.service';
 import { NotificationService } from '../services/notification.service';
 import { NotificationsService } from '../services/notifications.service';
+import { Notification } from '../models/notification.model';
 
 @Component({
   selector: 'app-header',
@@ -32,6 +34,11 @@ export class Header implements OnInit, OnDestroy {
   user: User | null = null;
    unseenCount: number = 0;
   private destroy$ = new Subject<void>();
+   isMobileSearchOpen = false;
+  isNotifOpen = false;
+    notifications: Notification[] = [];
+    @ViewChild('notifContainer') notifContainer!: ElementRef; // ajouter
+
 
   sidebarService = inject(SidebarService);
   authService    = inject(AuthService);
@@ -40,13 +47,14 @@ export class Header implements OnInit, OnDestroy {
   wsService      = inject(WebSocketService);
   popService     = inject(NotificationService);
   notificationService=inject(NotificationsService);
+    private cdr          = inject(ChangeDetectorRef);
 
   isUserMenuOpen  = false;
   isThemeMenuOpen = false;
 
   @ViewChild('userMenuContainer')  userMenuContainer!:  ElementRef;
   @ViewChild('themeMenuContainer') themeMenuContainer!: ElementRef;
-
+ @ViewChild('mobileSearchInput') mobileSearchInput!: ElementRef;
   ngOnInit(): void {
 
 
@@ -54,7 +62,7 @@ export class Header implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), filter(user => !!user))
       .subscribe(user => {
         this.user = user;
-        this.notificationService.refreshUnseenCount(user.id);
+              this.notificationService.refreshUnseenCount(user.id);
       });
 
   
@@ -95,7 +103,9 @@ export class Header implements OnInit, OnDestroy {
         this.unseenCount = count;
       });
   }
-
+ hasUnseen(): boolean {
+  return this.notifications.some(noti => !noti.seen);
+}
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -110,6 +120,55 @@ export class Header implements OnInit, OnDestroy {
     this.isThemeMenuOpen = false;
   }
 
+
+
+  onAvatarError(): void {
+    if (this.user) this.user = { ...this.user, profilePictureLink: '' };
+  }
+
+  toggleNotifDropdown(): void {
+  this.isNotifOpen = !this.isNotifOpen;
+  if (this.isNotifOpen && this.user) {
+    this.notificationService.getNotifications(this.user.id, 0, 5)
+      .subscribe(page => {
+        this.notifications = page.content;
+        this.cdr.detectChanges()
+
+        const unseenIds = this.notifications
+          .filter(n => !n.seen)
+          .map(n => n.id);
+
+        if (unseenIds.length > 0) {
+          this.notificationService.markAsSeen(unseenIds).subscribe();
+        }
+      });
+  }
+}
+
+markAllAsSeen(): void {
+  this.notificationService.markAllAsSeen().subscribe(() => {
+    this.notifications = this.notifications.map(n => ({ ...n, seen: true }));
+    this.popService.success("Les notifications ont été marquées comme lues")
+  });
+}
+
+
+
+
+toggleMobileSearch(): void {
+    this.isMobileSearchOpen = !this.isMobileSearchOpen;
+    if (this.isMobileSearchOpen) {
+      setTimeout(() => {
+        this.mobileSearchInput?.nativeElement?.focus();
+      }, 100);
+    }
+  }
+
+  closeMobileSearch(): void {
+    this.isMobileSearchOpen = false;
+  }
+
+  // Modifie la méthode onDocumentClick pour gérer la recherche mobile
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.isUserMenuOpen &&
@@ -122,10 +181,17 @@ export class Header implements OnInit, OnDestroy {
         !this.themeMenuContainer.nativeElement.contains(event.target)) {
       this.isThemeMenuOpen = false;
     }
-  }
-
-  onAvatarError(): void {
-    if (this.user) this.user = { ...this.user, profilePictureLink: '' };
+    if (this.isNotifOpen &&
+        this.notifContainer &&
+        !this.notifContainer.nativeElement.contains(event.target)) {
+      this.isNotifOpen = false;
+    }
+  
+    if (this.isMobileSearchOpen &&
+        this.mobileSearchInput &&
+        !this.mobileSearchInput.nativeElement.contains(event.target)) {
+     
+    }
   }
 
   logout(): void {

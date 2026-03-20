@@ -87,4 +87,33 @@ public class NotificationController {
             @PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.countNotificationNoSeen(userId));
     }
+
+    @Operation(summary = "Marquer des notifications comme lues",
+            description = "Marque une liste de notifications comme lues pour l'utilisateur connecté")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Notifications marquées comme lues"),
+            @ApiResponse(responseCode = "400", description = "Requête invalide")
+    })
+    @PatchMapping("/seen")
+    public ResponseEntity<Void> markAsSeen(@RequestBody List<Long> ids) {
+        notificationService.markAsSeen(ids);
+        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestBody List<Long> ids) {
+        notificationService.deletes(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "Marquer toutes les notifications comme lues",
+            description = "Marque toutes les notifications de l'utilisateur connecté comme lues")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Toutes les notifications marquées comme lues")
+    })
+    @PatchMapping("/seen/all")
+    public ResponseEntity<Void> markAllAsSeen() {
+        notificationService.markAllAsSeen();
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,0 +1,17 @@
+<!-- notification-item.component.html -->
+<div class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+     [class.bg-blue-50]="!notification.seen"
+     [class.dark:bg-blue-900/20]="!notification.seen">
+  
+  <!-- Indicateur non lu -->
+  <span *ngIf="!notification.seen"
+        class="mt-2 h-2 w-2 min-w-[8px] rounded-full bg-blue-500">
+  </span>
+  <span *ngIf="notification.seen" class="mt-2 h-2 w-2 min-w-[8px]"></span>
+
+  <!-- Contenu -->
+  <div class="flex flex-col gap-1 flex-1">
+    <p class="text-sm text-gray-800 dark:text-gray-100">{{ notification.message }}</p>
+    <span class="text-xs text-gray-400">{{ notification.date | date:'short' }}</span>
+  </div>
+</div>

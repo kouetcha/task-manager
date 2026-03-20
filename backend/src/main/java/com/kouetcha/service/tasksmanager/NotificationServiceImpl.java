@@ -1,5 +1,6 @@
 package com.kouetcha.service.tasksmanager;
 
+import com.kouetcha.config.auditor.UserContext;
 import com.kouetcha.dto.tasksmanager.NotificationDto;
 import com.kouetcha.model.tasksmanager.Notification;
 import com.kouetcha.repository.tasksmanager.NotificationRepository;
@@ -48,14 +49,29 @@ public class NotificationServiceImpl implements NotificationService{
         return notificationRepository.findAllByRecepteurIdOrderByDateDesc(userId,pageable);
     }
     @Override
-    public List<Notification> findNotificationNoSeen(Long userId) {
-        List<Notification> notifications =
-                notificationRepository.findAllByRecepteurIdAndSeenFalseOrderByDateDesc(userId);
-
+    public void markAsSeen(List<Long> ids){
+        List<Notification>notifications=notificationRepository.findAllByRecepteurIdAndIdIn(UserContext.getUtilisaeurConnecte().getId(),ids);
         notifications.forEach(notification -> notification.setSeen(true));
         notificationRepository.saveAll(notifications);
+    }
+    @Override
+    public void deletes(List<Long> ids){
+        List<Notification>notifications=notificationRepository.findAllByRecepteurIdAndIdIn(UserContext.getUtilisaeurConnecte().getId(),ids);
 
-        return notifications;
+        notificationRepository.deleteAll(notifications);
+    }
+    @Override
+    public void markAllAsSeen(){
+        List<Notification>notifications=notificationRepository.findAllByRecepteurId(UserContext.getUtilisaeurConnecte().getId());
+        notifications.forEach(notification -> notification.setSeen(true));
+        notificationRepository.saveAll(notifications);
+    }
+
+    @Override
+    public List<Notification> findNotificationNoSeen(Long userId) {
+
+
+        return notificationRepository.findAllByRecepteurIdAndSeenFalseOrderByDateDesc(userId);
     }
     @Override
     public long countNotificationNoSeen(Long userId){
@@ -64,15 +80,8 @@ public class NotificationServiceImpl implements NotificationService{
     }
     @Override
     public Page<Notification> findNotificationNoSeen(Long userId, Pageable pageable) {
-        Page<Notification> page =
-                notificationRepository.findAllByRecepteurIdAndSeenFalseOrderByDateDesc(userId, pageable);
 
-        List<Notification> notifications = page.getContent();
-
-        notifications.forEach(notification -> notification.setSeen(true));
-        notificationRepository.saveAll(notifications);
-
-        return page;
+        return notificationRepository.findAllByRecepteurIdAndSeenFalseOrderByDateDesc(userId, pageable);
     }
 
 }

@@ -1,0 +1,82 @@
+/* Améliorations responsive */
+@media (max-width: 640px) {
+  .header-actions {
+    gap: 0.25rem;
+  }
+  
+  /* Ajustement des icônes sur mobile */
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Animation pour la recherche mobile */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fixed.inset-0 > div {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Scrollbar personnalisée pour la liste des notifications */
+.max-h-64::-webkit-scrollbar,
+.max-h-72::-webkit-scrollbar {
+  width: 4px;
+}
+
+.max-h-64::-webkit-scrollbar-track,
+.max-h-72::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.max-h-64::-webkit-scrollbar-thumb,
+.max-h-72::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.max-h-64::-webkit-scrollbar-thumb:hover,
+.max-h-72::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Dark mode scrollbar */
+.dark .max-h-64::-webkit-scrollbar-track,
+.dark .max-h-72::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark .max-h-64::-webkit-scrollbar-thumb,
+.dark .max-h-72::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+/* Éviter le débordement sur mobile */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Amélioration du touch target sur mobile */
+@media (max-width: 640px) {
+  button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.75rem;
+  }
+}
