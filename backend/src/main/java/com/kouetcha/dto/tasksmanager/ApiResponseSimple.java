@@ -3,10 +3,10 @@ package com.kouetcha.dto.tasksmanager;
 import lombok.Data;
 
 @Data
-public class ApiResponse {
+public class ApiResponseSimple {
     private String message;
 
-    public ApiResponse(String message) {
+    public ApiResponseSimple(String message) {
         this.message = message;
     }
 

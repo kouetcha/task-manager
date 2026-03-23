@@ -89,6 +89,6 @@
 .editor-actions {
   position: absolute;
   top: 80px;
-  right: 90px;
+  right: 290px;
   z-index: 1000; /* pour qu'il soit au-dessus de l'éditeur */
 }

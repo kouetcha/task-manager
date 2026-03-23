@@ -274,7 +274,7 @@ public class TacheServiceImpl implements TacheService {
 
         if (utilisateurs == null || utilisateurs.isEmpty()) return;
 
-        String message = "Vous avez été associé au Tache : *" + tache.getDesignation() + "*";
+        String message = "Vous avez été associé à la tâche : *" + tache.getDesignation() + "*";
         NotificationEvent event = buildTacheEvent(TypeEvent.TACHE_ASSIGNEE, tache, message);
 
         Utilisateur emetteur = UserContext.getUtilisaeurConnecte();

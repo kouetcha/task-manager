@@ -14,30 +14,57 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RestController
 @CrossOrigin(origins = "${client.url}")
-@Tag(name = "Statistiques")
+@Tag(name = "Statistiques", description = "API de gestion des statistiques et tableaux de bord")
 @RequiredArgsConstructor
 @RequestMapping("statistiques")
 public class StatistiqueController {
-   private final StatistiqueService service;
 
+    private final StatistiqueService service;
+
+    @Operation(
+            summary = "Récupérer les données du tableau de bord",
+            description = "Retourne les statistiques et indicateurs pour le tableau de bord de l'utilisateur connecté"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Données du tableau de bord récupérées avec succès"),
+            @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié"),
+            @ApiResponse(responseCode = "403", description = "Accès non autorisé")
+    })
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardDto> getDashboard(@AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
-        if(UserContext.getUtilisaeurConnecte()==null){
+    public ResponseEntity<DashboardDto> getDashboard(
+            @Parameter(description = "Détails de l'utilisateur authentifié", hidden = true)
+            @AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
+        if (UserContext.getUtilisaeurConnecte() == null) {
             throw new IllegalAccessException("Vous n'avez pas le droit d'acceder à la ressource");
         }
         Long userId = UserContext.getUtilisaeurConnecte().getId();
-        String userEmail=UserContext.getUtilisaeurConnecte().getEmail();
-        return ResponseEntity.ok(service.getDashboard(userId,userEmail));
+        String userEmail = UserContext.getUtilisaeurConnecte().getEmail();
+        return ResponseEntity.ok(service.getDashboard(userId, userEmail));
     }
+
+    @Operation(
+            summary = "Récupérer les compteurs du menu",
+            description = "Retourne les nombres d'éléments (projets, activités, tâches, etc.) pour l'affichage dans le menu de l'utilisateur connecté"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Compteurs du menu récupérés avec succès"),
+            @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié"),
+            @ApiResponse(responseCode = "403", description = "Accès non autorisé")
+    })
     @GetMapping("/menu")
-    public ResponseEntity<CountMenuDto> getMenu(@AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
-        if(UserContext.getUtilisaeurConnecte()==null){
+    public ResponseEntity<CountMenuDto> getMenu(
+            @Parameter(description = "Détails de l'utilisateur authentifié", hidden = true)
+            @AuthenticationPrincipal UserDetails userDetails) throws IllegalAccessException {
+        if (UserContext.getUtilisaeurConnecte() == null) {
             throw new IllegalAccessException("Vous n'avez pas le droit d'acceder à la ressource");
         }
-        String userEmail=UserContext.getUtilisaeurConnecte().getEmail();
+        String userEmail = UserContext.getUtilisaeurConnecte().getEmail();
         return ResponseEntity.ok(service.recupereMenuCount(userEmail));
     }
 }

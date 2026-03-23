@@ -19,7 +19,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication()
-//@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableScheduling
 @EnableAsync
 @EnableAspectJAutoProxy

@@ -99,6 +99,10 @@ public class NotificationController {
         notificationService.markAsSeen(ids);
         return ResponseEntity.noContent().build();
     }
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = " Les notifications ont été supprimés avec succès"),
+            @ApiResponse(responseCode = "404", description = "Notification non trouvée")
+    })
     @PatchMapping("/delete")
     public ResponseEntity<Void> delete(@RequestBody List<Long> ids) {
         notificationService.deletes(ids);

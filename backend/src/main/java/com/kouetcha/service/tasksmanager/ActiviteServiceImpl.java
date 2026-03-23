@@ -281,7 +281,7 @@ public class ActiviteServiceImpl implements ActiviteService {
 
         if (utilisateurs == null || utilisateurs.isEmpty()) return;
 
-        String message = "Vous avez été associé au Activite : *" + activite.getDesignation() + "*";
+        String message = "Vous avez été associé à l'activité : *" + activite.getDesignation() + "*";
         NotificationEvent event = buildActiviteEvent(TypeEvent.ACTIVITE_ASSIGNEE, activite, message);
 
         Utilisateur emetteur = UserContext.getUtilisaeurConnecte();
